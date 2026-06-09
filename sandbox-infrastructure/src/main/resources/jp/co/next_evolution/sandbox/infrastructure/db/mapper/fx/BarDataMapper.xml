@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 4.0//EN"
+  "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="jp.co.next_evolution.sandbox.infrastructure.db.mapper.fx.BarDataMapper">
+
+  <select id="statusList" resultType="jp.co.next_evolution.sandbox.infrastructure.db.entity.FxBarDataStatus">
+    SELECT
+         c.symbol                                              AS symbol
+        ,DATE_FORMAT(MIN(b.bar_date_time), '%Y-%m-%d %H:%i')  AS barDateTimeMinS
+        ,DATE_FORMAT(MAX(b.bar_date_time), '%Y-%m-%d %H:%i')  AS barDateTimeMaxS
+        ,COUNT(b.symbol)                                       AS count
+    FROM fx_symbol c
+    LEFT JOIN fx_bar_${barType} b ON b.symbol = c.symbol
+    WHERE c.symbol_type = #{symbolType}
+    GROUP BY c.symbol
+    ORDER BY c.sort_order
+  </select>
+
+  <sql id="searchWhere">
+    WHERE
+    B.symbol = #{symbol}
+    <choose>
+      <when test="barDateFrom != null and barDateFrom != ''">
+        <choose>
+          <when test="barDateTo != null and barDateTo != ''">
+            AND B.bar_date_time BETWEEN
+                STR_TO_DATE(CONCAT(#{barDateFrom}, '000000'), '%Y%m%d%H%i%s')
+                AND
+                STR_TO_DATE(CONCAT(#{barDateTo},   '235959'), '%Y%m%d%H%i%s')
+          </when>
+          <otherwise>
+            AND B.bar_date_time &gt;= STR_TO_DATE(CONCAT(#{barDateFrom}, '000000'), '%Y%m%d%H%i%s')
+          </otherwise>
+        </choose>
+      </when>
+      <otherwise>
+        <choose>
+          <when test="barDateTo != null and barDateTo != ''">
+            AND B.bar_date_time &lt;= STR_TO_DATE(CONCAT(#{barDateTo}, '235959'), '%Y%m%d%H%i%s')
+          </when>
+        </choose>
+      </otherwise>
+    </choose>
+    AND C.deleted = 0
+  </sql>
+
+  <select id="searchCount" resultType="Integer">
+    SELECT COUNT(*)
+    FROM fx_bar_${barType} B
+    INNER JOIN fx_symbol C ON C.symbol = B.symbol
+    <include refid="searchWhere"/>
+  </select>
+
+  <select id="search" resultType="jp.co.next_evolution.sandbox.infrastructure.db.entity.FxBarData">
+    SELECT
+         B.symbol                               AS symbol
+        ,B.bar_date_time                        AS barDateTime
+        ,FORMAT(B.open_price,   C.valid_scale)  AS openPrice
+        ,FORMAT(B.high_price,   C.valid_scale)  AS highPrice
+        ,FORMAT(B.low_price,    C.valid_scale)  AS lowPrice
+        ,FORMAT(B.close_price,  C.valid_scale)  AS closePrice
+        ,B.volume                               AS volume
+        ,FORMAT(B.high_profit,  C.valid_scale)  AS highProfit
+        ,FORMAT(B.low_profit,   C.valid_scale)  AS lowProfit
+        ,FORMAT(B.close_profit, C.valid_scale)  AS closeProfit
+        ,FORMAT(B.range_profit, C.valid_scale)  AS rangeProfit
+        ,COALESCE(R.rsi_value, 0)               AS rsiValue
+        ,COALESCE(R.rsi_ma, 0)                  AS rsiMa
+    FROM fx_bar_${barType} B
+    INNER JOIN fx_symbol C ON C.symbol = B.symbol
+    LEFT JOIN fx_bar_${barType}_rsi R
+      ON    R.symbol        = B.symbol
+        AND R.bar_date_time = B.bar_date_time
+        AND R.rsi_range     = 14
+    <include refid="searchWhere"/>
+    <if test="sortAsc == true">
+      ORDER BY B.bar_date_time
+    </if>
+    <if test="sortAsc == false">
+      ORDER BY B.bar_date_time DESC
+    </if>
+    <bind name="offset" value="(page - 1) * size"/>
+    <if test="offset &lt; 1">LIMIT #{size}</if>
+    <if test="offset &gt; 0">LIMIT #{size} OFFSET #{offset}</if>
+  </select>
+
+</mapper>

@@ -1,0 +1,71 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /api
+
+spring:
+  datasource:
+    genesis:
+      type: com.zaxxer.hikari.HikariDataSource
+      pool-name: HikariPoolGenesis
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      jdbc-url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_SCHEMA:dev}?useUnicode=true&characterEncoding=UTF-8
+      username: ${DB_USER:user}
+      password: ${DB_PASSWORD:password}
+      auto-commit: false
+      connection-timeout: 5000
+      minimum-idle: 1
+      maximum-pool-size: 10
+      connection-test-query: SELECT 1 FROM DUAL
+  session:
+    storeType: redis
+    redis:
+      flush-mode: immediate    # on_save | immediate
+      expire-minute: 30
+  redis:
+    host: ${REDIS_HOST:localhost}
+    port: ${REDIS_PORT:6379}
+    password:
+    database: 0
+  servlet:
+    multipart:
+      max-file-size: 32MB
+      max-request-size: 32MB
+springdoc:
+  default-produces-media-type: application/json
+
+#mybatis:
+#  mapper-locations: classpath*:**/mapper/**/*.xml   # XML ファイルの場所
+#  configuration:
+#    map-underscore-to-camel-case: true           # snake_case → camelCase 自動変換
+#    default-fetch-size: 100
+#    default-statement-timeout: 30
+
+jwt:
+  allowedOriginList:
+    - ${JWT_ORIGIN1:}
+    - ${JWT_ORIGIN2}
+  allowedIssList:
+    - ${JWT_ISSUER1}
+  allowedAudienceList:
+    - ${JWT_AUDIENCE1:}
+    - ${JWT_AUDIENCE2:}
+    - ${JWT_AUDIENCE3:}
+
+genesis:
+  session-ttl: 3600
+  external:
+    gaitame-price-rate: https://navi.gaitame.com
+  storage:
+    data:
+      bucket: ${BUCKET_NAME:next-evolution}/data
+      fx: ${APP_NAME:genesis}/fx
+  app:
+    import-check-skip: false
+    csv-bulk-load-size: 1000
+    indicator-exclude-list:
+      - "本日掲載の指標はありません"
+      - "休場"
+      - "韓国"
+      - "ポーランド"
+      - "日銀・金融政策決定会合（"

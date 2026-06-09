@@ -1,0 +1,119 @@
+package jp.co.next_evolution.sandbox.infrastructure.repository.fx;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import jp.co.next_evolution.sandbox.domain.model.fx.EconomicIndicatorData;
+import jp.co.next_evolution.sandbox.domain.repository.fx.EconomicIndicatorDataRepository;
+import jp.co.next_evolution.sandbox.infrastructure.db.entity.FxEconomicIndicatorData;
+import jp.co.next_evolution.sandbox.infrastructure.db.mapper.fx.EconomicIndicatorDataMapper;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Repository;
+
+@Repository
+@RequiredArgsConstructor
+public class EconomicIndicatorDataRepositoryImpl implements EconomicIndicatorDataRepository {
+
+  private final EconomicIndicatorDataMapper economicIndicatorDataMapper;
+
+  @Override
+  public int count(long id, String importance, String countryCode, LocalDate publicationBaseDate) {
+    return economicIndicatorDataMapper.count(id, importance, countryCode, publicationBaseDate);
+  }
+
+  @Override
+  public List<EconomicIndicatorData> search(long id, String importance, String countryCode,
+      LocalDate publicationBaseDate, int page, int size, boolean sortAsc) {
+    return economicIndicatorDataMapper.search(id, importance, countryCode, publicationBaseDate,
+        page, size, sortAsc)
+        .stream()
+        .map(this::toDomain)
+        .collect(Collectors.toList());
+  }
+
+  @Override
+  public Optional<EconomicIndicatorData> get(Long id, LocalDateTime publication) {
+    return Optional.ofNullable(economicIndicatorDataMapper.get(id, publication))
+        .map(this::toDomain);
+  }
+
+  @Override
+  public boolean exists(Long id, LocalDateTime publication) {
+    return economicIndicatorDataMapper.exists(id, publication);
+  }
+
+  @Override
+  public int add(EconomicIndicatorData data) {
+    return economicIndicatorDataMapper.insert(toRecord(data));
+  }
+
+  @Override
+  public int update(EconomicIndicatorData data, LocalDateTime publication) {
+    return economicIndicatorDataMapper.update(toRecord(data), publication);
+  }
+
+  @Override
+  public int updateId(EconomicIndicatorData data, Long id, LocalDateTime publication) {
+    return economicIndicatorDataMapper.updateId(toRecord(data), id, publication);
+  }
+
+  @Override
+  public int deleteLoad() {
+    return economicIndicatorDataMapper.deleteLoad();
+  }
+
+  @Override
+  public int insertLoad(EconomicIndicatorData data) {
+    return economicIndicatorDataMapper.insertLoad(toRecord(data));
+  }
+
+  @Override
+  public List<EconomicIndicatorData> loadDiff() {
+    return economicIndicatorDataMapper.loadDiff()
+        .stream()
+        .map(this::toDomain)
+        .collect(Collectors.toList());
+  }
+
+  @Override
+  public int insertFromLoad() {
+    return economicIndicatorDataMapper.insertFromLoad();
+  }
+
+  private EconomicIndicatorData toDomain(FxEconomicIndicatorData record) {
+    return EconomicIndicatorData.builder()
+        .id(record.getId())
+        .countryCode(record.getCountryCode())
+        .name(record.getName())
+        .importance(record.getImportance())
+        .description(record.getDescription())
+        .publication(record.getPublication())
+        .publicationDate(record.getPublicationDate())
+        .publicationTime(record.getPublicationTime())
+        .dayOfWeek(record.getDayOfWeek())
+        .subTitle(record.getSubTitle())
+        .resultValue(record.getResultValue())
+        .forecastValue(record.getForecastValue())
+        .previousValue(record.getPreviousValue())
+        .unitOfValue(record.getUnitOfValue())
+        .memo(record.getMemo())
+        .countryName(record.getCountryName())
+        .countryNameShort(record.getCountryNameShort())
+        .build();
+  }
+
+  private FxEconomicIndicatorData toRecord(EconomicIndicatorData model) {
+    return FxEconomicIndicatorData.builder()
+        .id(model.getId())
+        .publication(model.getPublication())
+        .subTitle(model.getSubTitle())
+        .resultValue(model.getResultValue())
+        .forecastValue(model.getForecastValue())
+        .previousValue(model.getPreviousValue())
+        .memo(model.getMemo())
+        .build();
+  }
+
+}

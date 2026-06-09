@@ -1,0 +1,20 @@
+genesis:
+  app:
+    import-check-skip: true # 初期設定の場合は既存レコード 0件でもimportできるようにする。
+
+logging:
+  level:
+    jp:
+      co:
+        next_evolution:
+          genesis:
+#            api: DEBUG
+            application: DEBUG
+#            domain: DEBUG
+#            infrastructure: DEBUG
+#            security: DEBUG
+#            dao: DEBUG
+#    org:
+#      springframework:
+#        security: DEBUG
+#    com: DEBUG

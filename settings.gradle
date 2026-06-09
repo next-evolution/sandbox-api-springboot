@@ -1,0 +1,8 @@
+rootProject.name = 'sandbox-api-springboot'
+
+include 'sandbox-api'
+include 'sandbox-application'
+include 'sandbox-domain'
+include 'sandbox-infrastructure'
+
+include 'sandbox-security'

@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper
+  namespace="jp.co.next_evolution.sandbox.infrastructure.db.mapper.fx.BarDataImportMapper">
+
+  <!-- ロードテーブル初期化 -->
+  <delete id="deleteLoad">
+    DELETE FROM fx_bar_load WHERE symbol = #{symbol}
+  </delete>
+
+  <delete id="deleteLoadSma">
+    DELETE FROM fx_bar_load_sma WHERE symbol = #{symbol}
+  </delete>
+
+  <delete id="deleteLoadRsi">
+    DELETE FROM fx_bar_load_rsi WHERE symbol = #{symbol}
+  </delete>
+
+  <!-- ロードテーブルへのバルクインサート -->
+  <insert id="bulkLoad">
+    INSERT INTO fx_bar_load
+      (symbol, bar_date_time, open_price, high_price, low_price, close_price, volume)
+    VALUES
+    <foreach collection="list" item="item" separator=",">
+      (#{item.symbol}, #{item.barDateTime}, #{item.openPrice}, #{item.highPrice},
+       #{item.lowPrice}, #{item.closePrice}, #{item.volume})
+    </foreach>
+  </insert>
+
+  <insert id="bulkLoadSma">
+    INSERT INTO fx_bar_load_sma
+      (symbol, bar_date_time, sma_range, sma_price, sma_cross)
+    VALUES
+    <foreach collection="list" item="item" separator=",">
+      (#{item.symbol}, #{item.barDateTime}, #{item.smaRange}, #{item.smaPrice}, #{item.smaCross})
+    </foreach>
+  </insert>
+
+  <insert id="bulkLoadRsi">
+    INSERT INTO fx_bar_load_rsi
+      (symbol, bar_date_time, rsi_range, rsi_value, rsi_ma)
+    VALUES
+    <foreach collection="list" item="item" separator=",">
+      (#{item.symbol}, #{item.barDateTime}, #{item.rsiRange}, #{item.rsiValue}, #{item.rsiMa})
+    </foreach>
+  </insert>
+
+  <!-- 最新1件削除 -->
+  <delete id="deleteLatestLoad">
+    DELETE FROM fx_bar_load
+    WHERE symbol = #{symbol}
+      AND bar_date_time = (
+        SELECT max_dt FROM (
+          SELECT MAX(bar_date_time) AS max_dt FROM fx_bar_load WHERE symbol = #{symbol}
+        ) AS t
+      )
+  </delete>
+
+  <delete id="deleteLatestLoadSma">
+    DELETE FROM fx_bar_load_sma
+    WHERE symbol = #{symbol}
+      AND bar_date_time = (
+        SELECT max_dt FROM (
+          SELECT MAX(bar_date_time) AS max_dt FROM fx_bar_load_sma WHERE symbol = #{symbol}
+        ) AS t
+      )
+  </delete>
+
+  <delete id="deleteLatestLoadRsi">
+    DELETE FROM fx_bar_load_rsi
+    WHERE symbol = #{symbol}
+      AND bar_date_time = (
+        SELECT max_dt FROM (
+          SELECT MAX(bar_date_time) AS max_dt FROM fx_bar_load_rsi WHERE symbol = #{symbol}
+        ) AS t
+      )
+  </delete>
+
+  <!-- 最新足日時取得 -->
+  <select id="getLatestLoadBarDateTime" resultType="String">
+    SELECT DATE_FORMAT(MAX(bar_date_time), '%Y-%m-%d %H:%i:%s')
+    FROM fx_bar_load
+    WHERE symbol = #{symbol}
+  </select>
+
+  <!-- 既存データとの整合性チェック -->
+  <select id="importCheck"
+    resultType="jp.co.next_evolution.sandbox.infrastructure.db.entity.FxBarCsvImportCheckDto">
+    SELECT
+        COUNT(M.bar_date_time)      AS existsCount,
+        SUM(
+            CASE WHEN M.bar_date_time IS NOT NULL
+                      AND (M.open_price  != L.open_price
+                           OR M.high_price != L.high_price
+                           OR M.low_price  != L.low_price
+                           OR M.close_price != L.close_price)
+                 THEN 1 ELSE 0 END
+        )                           AS diffCount
+    FROM fx_bar_load L
+    LEFT JOIN ${tableBarData} M
+           ON M.symbol       = L.symbol
+          AND M.bar_date_time = L.bar_date_time
+    WHERE L.symbol = #{symbol}
+  </select>
+
+  <!-- ロードテーブルから本テーブルへインサート -->
+  <insert id="insertFromLoad">
+    INSERT INTO fx_bar_${barType}
+    SELECT
+         L.symbol
+        ,L.bar_date_time
+        ,L.open_price
+        ,L.high_price
+        ,L.low_price
+        ,L.close_price
+        ,L.volume
+        ,(L.high_price  - L.open_price)
+        ,(L.low_price   - L.open_price)
+        ,(L.close_price - L.open_price)
+        ,(L.high_price  - L.low_price)
+    FROM fx_bar_load L
+    WHERE L.symbol = #{symbol}
+      AND NOT EXISTS (
+        SELECT 1 FROM fx_bar_${barType} M
+        WHERE M.symbol       = L.symbol
+          AND M.bar_date_time = L.bar_date_time
+      )
+  </insert>
+
+  <insert id="insertFromLoadSma">
+    INSERT INTO fx_bar_${barType}_sma
+      (symbol, bar_date_time, sma_range, sma_price, sma_cross)
+    SELECT L.symbol, L.bar_date_time, L.sma_range, L.sma_price, L.sma_cross
+    FROM fx_bar_load_sma L
+    WHERE L.symbol = #{symbol}
+      AND NOT EXISTS (
+        SELECT 1 FROM fx_bar_${barType}_sma M
+        WHERE M.symbol       = L.symbol
+          AND M.bar_date_time = L.bar_date_time
+          AND M.sma_range     = L.sma_range
+      )
+  </insert>
+
+  <insert id="insertFromLoadRsi">
+    INSERT INTO fx_bar_${barType}_rsi
+      (symbol, bar_date_time, rsi_range, rsi_value, rsi_ma)
+    SELECT L.symbol, L.bar_date_time, L.rsi_range, L.rsi_value, L.rsi_ma
+    FROM fx_bar_load_rsi L
+    WHERE L.symbol = #{symbol}
+      AND NOT EXISTS (
+        SELECT 1 FROM fx_bar_${barType}_rsi M
+        WHERE M.symbol       = L.symbol
+          AND M.bar_date_time = L.bar_date_time
+          AND M.rsi_range     = L.rsi_range
+      )
+  </insert>
+
+  <!-- 差分データ取得 -->
+  <select id="getDiffBarData"
+    resultType="jp.co.next_evolution.sandbox.infrastructure.db.entity.FxBarLoad">
+    SELECT
+        L.symbol,
+        L.bar_date_time AS barDateTime,
+        L.open_price    AS openPrice,
+        L.high_price    AS highPrice,
+        L.low_price     AS lowPrice,
+        L.close_price   AS closePrice,
+        L.volume
+    FROM fx_bar_load L
+    INNER JOIN fx_bar_${barType} M
+            ON M.symbol       = L.symbol
+           AND M.bar_date_time = L.bar_date_time
+    WHERE L.symbol = #{symbol}
+      AND (M.open_price  != L.open_price
+           OR M.high_price != L.high_price
+           OR M.low_price  != L.low_price
+           OR M.close_price != L.close_price)
+  </select>
+
+  <select id="getDiffBarSma"
+    resultType="jp.co.next_evolution.sandbox.infrastructure.db.entity.FxBarLoadSma">
+    SELECT
+        L.symbol,
+        L.bar_date_time AS barDateTime,
+        L.sma_range     AS smaRange,
+        L.sma_price     AS smaPrice,
+        L.sma_cross     AS smaCross
+    FROM fx_bar_load_sma L
+    INNER JOIN fx_bar_${barType}_sma M
+            ON M.symbol       = L.symbol
+           AND M.bar_date_time = L.bar_date_time
+           AND M.sma_range     = L.sma_range
+    WHERE L.symbol = #{symbol}
+      AND (M.sma_price != L.sma_price OR M.sma_cross != L.sma_cross)
+  </select>
+
+  <select id="getDiffBarRsi"
+    resultType="jp.co.next_evolution.sandbox.infrastructure.db.entity.FxBarLoadRsi">
+    SELECT
+        L.symbol,
+        L.bar_date_time AS barDateTime,
+        L.rsi_range     AS rsiRange,
+        L.rsi_value     AS rsiValue,
+        L.rsi_ma        AS rsiMa
+    FROM fx_bar_load_rsi L
+    INNER JOIN fx_bar_${barType}_rsi M
+            ON M.symbol       = L.symbol
+           AND M.bar_date_time = L.bar_date_time
+           AND M.rsi_range     = L.rsi_range
+    WHERE L.symbol = #{symbol}
+      AND (M.rsi_value != L.rsi_value OR M.rsi_ma != L.rsi_ma)
+  </select>
+
+  <!-- 差分データ更新 -->
+  <update id="updateBarData">
+    UPDATE fx_bar_${barType} M
+    INNER JOIN fx_bar_load L
+            ON L.symbol       = M.symbol
+           AND L.bar_date_time = M.bar_date_time
+    SET M.open_price  = L.open_price,
+        M.high_price  = L.high_price,
+        M.low_price   = L.low_price,
+        M.close_price = L.close_price,
+        M.volume      = L.volume
+    WHERE L.symbol = #{symbol}
+      AND (M.open_price  != L.open_price
+           OR M.high_price != L.high_price
+           OR M.low_price  != L.low_price
+           OR M.close_price != L.close_price)
+  </update>
+
+  <update id="updateBarSma">
+    UPDATE fx_bar_${barType}_sma M
+    INNER JOIN fx_bar_load_sma L
+            ON L.symbol       = M.symbol
+           AND L.bar_date_time = M.bar_date_time
+           AND L.sma_range     = M.sma_range
+    SET M.sma_price = L.sma_price,
+        M.sma_cross = L.sma_cross
+    WHERE L.symbol = #{symbol}
+      AND (M.sma_price != L.sma_price OR M.sma_cross != L.sma_cross)
+  </update>
+
+  <update id="updateBarRsi">
+    UPDATE fx_bar_${barType}_rsi M
+    INNER JOIN fx_bar_load_rsi L
+            ON L.symbol       = M.symbol
+           AND L.bar_date_time = M.bar_date_time
+           AND L.rsi_range     = M.rsi_range
+    SET M.rsi_value = L.rsi_value,
+        M.rsi_ma    = L.rsi_ma
+    WHERE L.symbol = #{symbol}
+      AND (M.rsi_value != L.rsi_value OR M.rsi_ma != L.rsi_ma)
+  </update>
+
+</mapper>

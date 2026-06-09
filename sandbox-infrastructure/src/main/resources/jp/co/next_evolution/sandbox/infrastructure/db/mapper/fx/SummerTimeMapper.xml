@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 4.0//EN"
+  "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="jp.co.next_evolution.sandbox.infrastructure.db.mapper.fx.SummerTimeMapper">
+
+  <select id="count" resultType="Integer">
+    SELECT COUNT(target_year)
+    FROM fx_summer_time
+  </select>
+
+  <select id="search" resultType="jp.co.next_evolution.sandbox.infrastructure.db.entity.FxSummerTime">
+    SELECT
+       target_year AS targetYear
+      ,apply_start AS applyStart
+      ,apply_end   AS applyEnd
+    FROM fx_summer_time
+    ORDER BY target_year DESC
+    <bind name="offset" value="(page - 1) * size"/>
+    <if test="offset == 0 || offset &lt; 0">LIMIT 0, #{size}</if>
+    <if test="offset &gt; 0">LIMIT #{offset}, #{size}</if>
+  </select>
+
+  <select id="get" resultType="jp.co.next_evolution.sandbox.infrastructure.db.entity.FxSummerTime">
+    SELECT
+       target_year AS targetYear
+      ,apply_start AS applyStart
+      ,apply_end   AS applyEnd
+    FROM fx_summer_time
+    WHERE target_year = #{targetYear}
+  </select>
+
+  <select id="exists" resultType="boolean">
+    SELECT EXISTS
+    (
+      SELECT *
+      FROM fx_summer_time
+      WHERE target_year = #{targetYear}
+    )
+  </select>
+
+  <insert id="insert" parameterType="jp.co.next_evolution.sandbox.infrastructure.db.entity.FxSummerTime">
+    INSERT INTO fx_summer_time (
+       target_year
+      ,apply_start
+      ,apply_end
+    ) VALUES (
+       #{targetYear}
+      ,#{applyStart}
+      ,#{applyEnd}
+    );
+  </insert>
+
+  <update id="update" parameterType="jp.co.next_evolution.sandbox.infrastructure.db.entity.FxSummerTime">
+    UPDATE fx_summer_time
+    SET
+       apply_start = #{applyStart}
+      ,apply_end   = #{applyEnd}
+    WHERE target_year = #{targetYear}
+  </update>
+
+  <update id="updateYear">
+    UPDATE fx_summer_time
+    SET
+       target_year = "{summerTime.targetYear}
+      ,apply_start = #{summerTime.applyStart}
+      ,apply_end   = #{summerTime.applyEnd}
+    WHERE target_year = #{targetYear}
+  </update>
+
+</mapper>

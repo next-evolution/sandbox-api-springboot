@@ -1,0 +1,203 @@
+plugins {
+    id 'java-library'
+    id 'org.springframework.boot' version '3.4.5'
+    id 'io.spring.dependency-management' version '1.1.7'
+    id 'checkstyle'
+}
+
+subprojects {
+    apply plugin: "java-library"
+    apply plugin: "org.springframework.boot"
+    apply plugin: "io.spring.dependency-management"
+    apply plugin: "checkstyle"
+
+    setVersion("1.0.0")
+
+    java {
+        setSourceCompatibility(21)
+        setTargetCompatibility(21)
+    }
+
+    repositories {
+        mavenCentral()
+        maven { setUrl('https://repo.spring.io/milestone') }
+        maven { setUrl('https://repo.spring.io/snapshot') }
+    }
+
+    configurations {
+        compileOnly {
+            extendsFrom annotationProcessor
+        }
+    }
+
+    dependencyManagement {
+        imports {
+            mavenBom "org.springframework.boot:spring-boot-dependencies:3.4.5"
+        }
+    }
+
+    dependencies {
+        implementation 'com.fasterxml.jackson.core:jackson-annotations:2.17.1'
+
+        compileOnly 'org.projectlombok:lombok:1.18.38'
+        annotationProcessor 'org.projectlombok:lombok'
+
+        /**
+        implementation 'com.auth0:java-jwt:4.5.0'
+        implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.19.0'
+        implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.20.1'
+
+        implementation 'io.swagger.core.v3:swagger-annotations:2.2.40'
+        implementation 'jakarta.validation:jakarta.validation-api:3.1.1'
+        implementation 'org.apache.poi:poi-ooxml:5.4.1'
+        implementation 'org.jxls:jxls-poi:3.0.0'
+        implementation 'org.jxls:jxls:3.0.0'
+
+        implementation 'org.springframework:spring-context:6.1.7'
+        implementation 'org.springframework:spring-web:6.2.12'
+
+        implementation 'org.springframework.boot:spring-boot-starter-security'
+        implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+        testImplementation 'org.springframework.boot:spring-boot-starter-test'
+        */
+
+    }
+
+    checkstyle {
+        toolVersion = '13.4.2'
+        configFile = file("${rootProject.projectDir}/checkstyle.xml")
+
+    }
+
+    tasks.withType(Checkstyle).configureEach {
+        reports {
+            xml.required = false
+            html.required = true
+        }
+    }
+}
+
+project(":sandbox-api") {
+
+    bootJar {
+        setEnabled(true)
+        setArchiveFileName("sandbox-api-${version}.jar")
+    }
+
+    dependencies {
+        implementation project(":sandbox-application")
+        implementation project(":sandbox-security")
+        runtimeOnly    project(':sandbox-infrastructure')
+
+        implementation 'org.springframework.boot:spring-boot-starter-web'
+        implementation 'org.springframework.security:spring-security-core'
+
+        implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.8'
+
+        testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    }
+
+    tasks.named('test') {
+        useJUnitPlatform()
+    }
+}
+
+project(":sandbox-application") {
+
+    bootJar {
+        setEnabled(false)
+    }
+
+    jar {
+        setEnabled(true)
+        setArchiveFileName("sandbox-application-${version}.jar")
+    }
+
+    dependencies {
+        api project(":sandbox-domain")
+
+        implementation 'org.springframework:spring-context'
+        implementation 'org.springframework:spring-tx'
+        implementation 'org.springframework.security:spring-security-core'
+
+        implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.8'
+
+        implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-csv'
+        implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
+        implementation 'com.fasterxml.jackson.core:jackson-databind'
+    }
+}
+
+project(":sandbox-domain") {
+
+    bootJar {
+        setEnabled(false)
+    }
+
+    jar {
+        setEnabled(true)
+        setArchiveFileName("sandbox-domain-${version}.jar")
+    }
+
+    dependencies {
+
+        implementation 'org.springframework:spring-context'
+        implementation 'org.springframework.security:spring-security-core'
+
+
+    }
+}
+
+project(":sandbox-infrastructure") {
+
+    bootJar {
+        setEnabled(false)
+    }
+
+    jar {
+        setEnabled(true)
+        setArchiveFileName("sandbox-infrastructure-${version}.jar")
+    }
+
+    dependencies {
+        implementation project(":sandbox-domain")
+
+
+        implementation 'org.springframework:spring-web'
+        implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.4'
+        implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
+        implementation 'org.mybatis:mybatis:3.5.19'
+        implementation 'com.mysql:mysql-connector-j:9.2.0'
+
+        implementation "org.springframework.session:spring-session-data-redis"
+
+        implementation 'redis.clients:jedis:5.2.0'
+
+        implementation 'org.springframework.security:spring-security-core'
+
+    }
+}
+
+project(":sandbox-security") {
+
+    bootJar {
+        setEnabled(false)
+    }
+
+    jar {
+        setEnabled(true)
+        setArchiveFileName("sandbox-security-${version}.jar")
+    }
+
+    dependencies {
+        implementation project(":sandbox-domain")
+
+        implementation 'org.springframework.boot:spring-boot-starter-web'
+        implementation 'org.springframework.boot:spring-boot-starter-security'
+        implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
+
+    }
+}
+

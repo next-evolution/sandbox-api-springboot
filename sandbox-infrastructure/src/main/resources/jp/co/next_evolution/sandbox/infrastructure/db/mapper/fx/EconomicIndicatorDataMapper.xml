@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 4.0//EN"
+  "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="jp.co.next_evolution.sandbox.infrastructure.db.mapper.fx.EconomicIndicatorDataMapper">
+
+  <sql id="searchWhere">
+    <if test='id > 0'>
+      AND T.id = #{id}
+    </if>
+    <if test='importance != null and importance != ""'>
+      AND E.importance = #{importance}
+    </if>
+    <if test='countryCode != null and countryCode != ""'>
+      AND E.country_code = #{countryCode}
+    </if>
+    <if test='publicationBaseDate != null'>
+      AND T.publication >= #{publicationBaseDate}
+    </if>
+  </sql>
+
+  <select id="count" resultType="Integer">
+    SELECT COUNT(T.id)
+    FROM fx_economic_indicator_data T
+    INNER JOIN fx_economic_indicator E ON E.id = T.id
+    WHERE T.id > 0
+    <include refid="searchWhere"/>
+  </select>
+
+  <select id="search"
+    resultType="jp.co.next_evolution.sandbox.infrastructure.db.entity.FxEconomicIndicatorData">
+    SELECT
+       T.id                                    AS id
+      ,C.code                                  AS countryCode
+      ,E.importance                            AS importance
+      ,C.name                                  AS countryName
+      ,C.name_short                            AS countryNameShort
+      ,E.name                                  AS name
+      ,E.description                           AS description
+      ,T.publication                           AS publication
+      ,DATE_FORMAT(T.publication, '%Y-%m-%d')  AS publicationDate
+      ,DATE_FORMAT(T.publication, '%H:%i')     AS publicationTime
+      ,DATE_FORMAT(T.publication, '%w')        AS dayOfWeek
+      ,T.sub_title                             AS subTitle
+      ,T.result_value                          AS resultValue
+      ,T.forecast_value                        AS forecastValue
+      ,T.previous_value                        AS previousValue
+      ,E.unit_of_value                         AS unitOfValue
+      ,T.memo                                  AS memo
+    FROM fx_economic_indicator_data T
+    INNER JOIN fx_economic_indicator E ON E.id = T.id
+    INNER JOIN fx_country C ON C.code = E.country_code
+    WHERE T.id > 0
+    <include refid="searchWhere"/>
+    <if test="sortAsc == true">
+      ORDER BY T.publication
+    </if>
+    <if test="sortAsc == false">
+      ORDER BY T.publication DESC
+    </if>
+    <bind name="offset" value="(page - 1) * size"/>
+    <if test="offset &lt; 1">LIMIT 0, #{size}</if>
+    <if test="offset &gt; 0">LIMIT #{offset}, #{size}</if>
+  </select>
+
+  <select id="exists" resultType="boolean">
+    SELECT EXISTS (
+      SELECT *
+      FROM fx_economic_indicator_data
+      WHERE
+        id          = #{id}
+        AND publication = #{publication}
+    )
+  </select>
+
+  <select id="get"
+    resultType="jp.co.next_evolution.sandbox.infrastructure.db.entity.FxEconomicIndicatorData">
+    SELECT
+       T.id                                    AS id
+      ,C.code                                  AS countryCode
+      ,E.importance                            AS importance
+      ,C.name                                  AS countryName
+      ,C.name_short                            AS countryNameShort
+      ,E.name                                  AS name
+      ,E.description                           AS description
+      ,T.publication                           AS publication
+      ,DATE_FORMAT(T.publication, '%Y-%m-%d')  AS publicationDate
+      ,DATE_FORMAT(T.publication, '%H:%i')     AS publicationTime
+      ,DATE_FORMAT(T.publication, '%w')        AS dayOfWeek
+      ,T.sub_title                             AS subTitle
+      ,T.result_value                          AS resultValue
+      ,T.forecast_value                        AS forecastValue
+      ,T.previous_value                        AS previousValue
+      ,E.unit_of_value                         AS unitOfValue
+      ,T.memo                                  AS memo
+    FROM fx_economic_indicator_data T
+    INNER JOIN fx_economic_indicator E ON E.id = T.id
+    INNER JOIN fx_country C ON C.code = E.country_code
+    WHERE
+      T.id          = #{id}
+      AND T.publication = #{publication}
+  </select>
+
+  <insert id="insert"
+    parameterType="jp.co.next_evolution.sandbox.infrastructure.db.entity.FxEconomicIndicatorData">
+    INSERT INTO fx_economic_indicator_data
+    VALUES (
+       #{id}
+      ,#{publication}
+      ,#{subTitle}
+      ,#{resultValue}
+      ,#{forecastValue}
+      ,#{previousValue}
+      ,#{memo}
+    )
+  </insert>
+
+  <update id="update">
+    UPDATE fx_economic_indicator_data
+    SET
+       publication    = #{data.publication}
+      ,sub_title      = #{data.subTitle}
+      ,result_value   = #{data.resultValue}
+      ,forecast_value = #{data.forecastValue}
+      ,previous_value = #{data.previousValue}
+      ,memo           = #{data.memo}
+    WHERE
+      id          = #{data.id}
+      AND publication = #{publication}
+  </update>
+
+  <update id="updateId">
+    UPDATE fx_economic_indicator_data
+    SET
+       id             = #{data.id}
+      ,publication    = #{data.publication}
+      ,sub_title      = #{data.subTitle}
+      ,result_value   = #{data.resultValue}
+      ,forecast_value = #{data.forecastValue}
+      ,previous_value = #{data.previousValue}
+      ,memo           = #{data.memo}
+    WHERE
+      id          = #{id}
+      AND publication = #{publication}
+  </update>
+
+  <delete id="deleteLoad">
+    DELETE FROM fx_economic_indicator_data_load
+  </delete>
+
+  <insert id="insertLoad"
+    parameterType="jp.co.next_evolution.sandbox.infrastructure.db.entity.FxEconomicIndicatorData">
+    INSERT INTO fx_economic_indicator_data_load
+    VALUES (
+       #{id}
+      ,#{publication}
+      ,#{subTitle}
+      ,#{resultValue}
+      ,#{forecastValue}
+      ,#{previousValue}
+      ,#{memo}
+    )
+  </insert>
+
+  <select id="loadDiff"
+    resultType="jp.co.next_evolution.sandbox.infrastructure.db.entity.FxEconomicIndicatorData">
+    SELECT
+       T.id             AS id
+      ,C.code           AS countryCode
+      ,E.importance     AS importance
+      ,C.name           AS countryName
+      ,C.name_short     AS countryNameShort
+      ,E.name           AS name
+      ,E.description    AS description
+      ,T.publication    AS publication
+      ,T.sub_title      AS subTitle
+      ,T.result_value   AS resultValue
+      ,T.forecast_value AS forecastValue
+      ,T.previous_value AS previousValue
+      ,E.unit_of_value  AS unitOfValue
+      ,T.memo           AS memo
+    FROM fx_economic_indicator_data T
+    INNER JOIN fx_economic_indicator E ON E.id = T.id
+    INNER JOIN fx_country C ON C.code = E.country_code
+    INNER JOIN fx_economic_indicator_data_load L ON
+      T.id = L.id
+      AND T.publication = L.publication
+    WHERE
+      T.result_value   != L.result_value
+      OR T.forecast_value != L.forecast_value
+      OR T.previous_value != L.previous_value
+  </select>
+
+  <insert id="insertFromLoad">
+    INSERT INTO fx_economic_indicator_data
+    SELECT
+       L.id
+      ,L.publication
+      ,L.sub_title
+      ,L.result_value
+      ,L.forecast_value
+      ,L.previous_value
+      ,L.memo
+    FROM fx_economic_indicator_data_load L
+    LEFT JOIN fx_economic_indicator_data D ON
+      D.id          = L.id
+      AND D.publication = L.publication
+    WHERE D.id IS NULL
+  </insert>
+
+</mapper>
