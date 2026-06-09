@@ -13,8 +13,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Pattern;
-import jp.co.next_evolution.sandbox.application.config.GenesisAppProperties;
-import jp.co.next_evolution.sandbox.domain.exception.GenesisApiException;
+import jp.co.next_evolution.sandbox.application.config.SandboxAppProperties;
+import jp.co.next_evolution.sandbox.domain.exception.SandboxApiException;
 import jp.co.next_evolution.sandbox.domain.model.fx.EconomicIndicator;
 import jp.co.next_evolution.sandbox.domain.model.fx.EconomicIndicatorData;
 import lombok.RequiredArgsConstructor;
@@ -33,7 +33,7 @@ public class EconomicIndicatorDataParser {
   private static final Pattern PTN_DATE = Pattern.compile("^[0-9]{1,2}/[0-9]{1,2}\\(");
   private static final Pattern PTN_TIME = Pattern.compile("^[0-9]{2}:[0-9]{2}");
 
-  private final GenesisAppProperties genesisAppProperties;
+  private final SandboxAppProperties sandboxAppProperties;
 
   public List<EconomicIndicatorData> parseFile(Path path, String fileName,
       HashMap<String, String> countryMap,
@@ -55,7 +55,7 @@ public class EconomicIndicatorDataParser {
           if (data != null) {
             resultList.add(data);
           }
-        } catch (GenesisApiException e) {
+        } catch (SandboxApiException e) {
           errorCount++;
         } catch (Exception e) {
           log.error(line);
@@ -133,7 +133,7 @@ public class EconomicIndicatorDataParser {
   }
 
   private boolean isSkip(String line) {
-    for (String keyword : genesisAppProperties.getIndicatorExcludeList()) {
+    for (String keyword : sandboxAppProperties.getIndicatorExcludeList()) {
       if (line.contains(keyword)) {
         return true;
       }

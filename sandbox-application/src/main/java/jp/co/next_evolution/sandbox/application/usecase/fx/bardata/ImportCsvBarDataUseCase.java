@@ -15,11 +15,11 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import jp.co.next_evolution.sandbox.application.command.fx.ImportCsvBarDataCommand;
-import jp.co.next_evolution.sandbox.application.config.GenesisAppProperties;
-import jp.co.next_evolution.sandbox.application.config.GenesisStorageProperties;
+import jp.co.next_evolution.sandbox.application.config.SandboxAppProperties;
+import jp.co.next_evolution.sandbox.application.config.SandboxStorageProperties;
 import jp.co.next_evolution.sandbox.application.dto.fx.BarCsvRow;
 import jp.co.next_evolution.sandbox.application.dto.fx.BarDataImportResult;
-import jp.co.next_evolution.sandbox.domain.exception.GenesisApiException;
+import jp.co.next_evolution.sandbox.domain.exception.SandboxApiException;
 import jp.co.next_evolution.sandbox.domain.model.fx.BarCsvImportCheckDto;
 import jp.co.next_evolution.sandbox.domain.model.fx.BarLoadData;
 import jp.co.next_evolution.sandbox.domain.model.fx.BarLoadRsi;
@@ -45,9 +45,9 @@ public class ImportCsvBarDataUseCase {
     CSV_MAPPER.registerModule(new JavaTimeModule());
   }
 
-  private final GenesisAppProperties genesisAppProperties;
+  private final SandboxAppProperties sandboxAppProperties;
 
-  private final GenesisStorageProperties genesisStorageProperties;
+  private final SandboxStorageProperties sandboxStorageProperties;
 
   private final BarDataRepository barDataRepository;
 
@@ -154,14 +154,14 @@ public class ImportCsvBarDataUseCase {
 
     try {
       Path uploadDir = Paths.get(
-          genesisStorageProperties.getBucket(), genesisStorageProperties.getFx(),
+          sandboxStorageProperties.getBucket(), sandboxStorageProperties.getFx(),
           "BarDataService", userSub);
       Files.createDirectories(uploadDir);
       Path savedFile = uploadDir.resolve(originalFileName);
       Files.copy(fileInputStream, savedFile, StandardCopyOption.REPLACE_EXISTING);
       return savedFile;
     } catch (IOException e) {
-      throw new GenesisApiException("ファイル保存に失敗しました: " + originalFileName, e);
+      throw new SandboxApiException("ファイル保存に失敗しました: " + originalFileName, e);
     }
 
   }
@@ -191,7 +191,7 @@ public class ImportCsvBarDataUseCase {
 
         count++;
 
-        if (barBuffer.size() >= genesisAppProperties.getCsvBulkLoadSize()) {
+        if (barBuffer.size() >= sandboxAppProperties.getCsvBulkLoadSize()) {
           barDataRepository.bulkLoad(barBuffer);
           barDataRepository.bulkLoadSma(smaBuffer);
           barDataRepository.bulkLoadRsi(rsiBuffer);
@@ -208,7 +208,7 @@ public class ImportCsvBarDataUseCase {
       }
 
     } catch (IOException e) {
-      throw new GenesisApiException("CSV読み込みに失敗しました", e);
+      throw new SandboxApiException("CSV読み込みに失敗しました", e);
     }
 
     return count;
@@ -244,7 +244,7 @@ public class ImportCsvBarDataUseCase {
 
   private boolean isImportCheckError(BarCsvImportCheckDto checkDto, String symbol) {
 
-    if (checkDto.getExistsCount() == 0 && !genesisAppProperties.isImportCheckSkip()) {
+    if (checkDto.getExistsCount() == 0 && !sandboxAppProperties.isImportCheckSkip()) {
       log.error("インポートチェックエラー: 既存レコードが0件です。symbol={}", symbol);
       return true;
     }

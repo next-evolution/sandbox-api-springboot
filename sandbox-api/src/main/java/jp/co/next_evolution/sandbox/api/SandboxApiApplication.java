@@ -6,10 +6,10 @@ import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootApplication(scanBasePackages = "jp.co.next_evolution.sandbox")
 @ComponentScan(basePackages = {"jp.co.next_evolution.sandbox"})
-public class GenesisApiApplication {
+public class SandboxApiApplication {
 
   public static void main(String[] args) {
-    SpringApplication.run(GenesisApiApplication.class, args);
+    SpringApplication.run(SandboxApiApplication.class, args);
   }
 
 }

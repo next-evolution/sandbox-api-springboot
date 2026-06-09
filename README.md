@@ -38,7 +38,7 @@ REDIS_PORT=46379
 | `JWT_AUDIENCE2` | Cognito App Client ID 2 | — |
 | `JWT_AUDIENCE3` | Cognito App Client ID 3 | — |
 | `BUCKET_NAME` | S3 バケット名 | `next-evolution` |
-| `APP_NAME` | アプリ名（S3 パス用） | `genesis` |
+| `APP_NAME` | アプリ名（S3 パス用） | `sandbox` |
 
 ## Build & Run
 

@@ -1,5 +1,5 @@
-DROP DATABASE IF EXISTS genesis_local;
+DROP DATABASE IF EXISTS sandbox_local;
 
-CREATE DATABASE genesis_local;
+CREATE DATABASE sandbox_local;
 
 flush privileges;

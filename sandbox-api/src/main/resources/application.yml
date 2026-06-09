@@ -5,9 +5,9 @@ server:
 
 spring:
   datasource:
-    genesis:
+    sandbox:
       type: com.zaxxer.hikari.HikariDataSource
-      pool-name: HikariPoolGenesis
+      pool-name: HikariPoolSandbox
       driver-class-name: com.mysql.cj.jdbc.Driver
       jdbc-url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_SCHEMA:dev}?useUnicode=true&characterEncoding=UTF-8
       username: ${DB_USER:user}
@@ -52,14 +52,14 @@ jwt:
     - ${JWT_AUDIENCE2:}
     - ${JWT_AUDIENCE3:}
 
-genesis:
+sandbox:
   session-ttl: 3600
   external:
     gaitame-price-rate: https://navi.gaitame.com
   storage:
     data:
       bucket: ${BUCKET_NAME:next-evolution}/data
-      fx: ${APP_NAME:genesis}/fx
+      fx: ${APP_NAME:sandbox}/fx
   app:
     import-check-skip: false
     csv-bulk-load-size: 1000

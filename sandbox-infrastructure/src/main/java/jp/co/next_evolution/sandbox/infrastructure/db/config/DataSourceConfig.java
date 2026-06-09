@@ -21,7 +21,7 @@ public class DataSourceConfig {
 
   @Bean
   @Primary
-  @ConfigurationProperties(prefix = "spring.datasource.genesis")
+  @ConfigurationProperties(prefix = "spring.datasource.sandbox")
   public HikariConfig dataSourceProperties() {
     return new HikariConfig();
   }
