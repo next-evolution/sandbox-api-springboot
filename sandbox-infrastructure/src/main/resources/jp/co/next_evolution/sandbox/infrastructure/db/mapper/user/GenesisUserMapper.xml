@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 4.0//EN" "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="jp.co.next_evolution.sandbox.infrastructure.db.mapper.user.GenesisUserMapper">
+
+  <select id="login" resultType="jp.co.next_evolution.sandbox.infrastructure.db.entity.GenesisUser">
+    SELECT
+       id               AS id
+      ,user_id          AS userId
+      ,email_address    AS emailAddress
+      ,nick_name        AS nickName
+      ,approved         AS approved
+      ,approved_at      AS approvedAt
+      ,admin            AS admin
+      ,blocked          AS blocked
+      ,deleted          AS deleted
+      ,created_at       AS createdAt
+      ,created_by       AS createdBy
+      ,updated_at       AS updatedAt
+      ,updated_by       AS updatedBy
+    FROM genesis_user
+    WHERE
+        user_id       = #{userId}
+        AND
+        email_address = #{email}
+  </select>
+
+  <select id="searchCount" resultType="int">
+    SELECT COUNT(id)
+    FROM genesis_user
+    WHERE deleted = FALSE
+    <if test="emailAddress != null and emailAddress != ''">
+      AND email_address LIKE '%${emailAddress}%'
+    </if>
+    <if test="approved != null">
+      AND approved = #{approved}
+    </if>
+  </select>
+
+  <select id="search" resultType="jp.co.next_evolution.sandbox.infrastructure.db.entity.GenesisUser">
+    SELECT
+       id               AS id
+      ,user_id          AS userId
+      ,email_address    AS emailAddress
+      ,nick_name        AS nickName
+      ,approved         AS approved
+      ,approved_at      AS approvedAt
+      ,admin            AS admin
+      ,blocked          AS blocked
+      ,created_at       AS createdAt
+      ,updated_at       AS updatedAt
+    FROM genesis_user
+    WHERE deleted = FALSE
+    <if test="emailAddress != null and emailAddress != ''">
+      AND email_address LIKE '%${emailAddress}%'
+    </if>
+    <if test="approved != null">
+      AND approved = #{approved}
+    </if>
+    ORDER BY id DESC
+    <bind name="offset" value="(page - 1) * size" />
+    <if test="offset == 0 || offset &lt; 0">LIMIT 0, #{size}</if>
+    <if test="offset &gt; 0">LIMIT #{offset}, #{size}</if>
+  </select>
+
+  <select id="existsByUserId" resultType="boolean">
+    SELECT EXISTS(
+      SELECT 1
+      FROM genesis_user
+      WHERE user_id = #{userId}
+    )
+  </select>
+
+  <insert id="insertUser" parameterType="jp.co.next_evolution.sandbox.infrastructure.db.entity.GenesisUser"
+          useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO genesis_user (
+       user_id
+      ,email_address
+      ,nick_name
+      ,approved
+      ,admin
+      ,blocked
+      ,deleted
+      ,created_at
+      ,created_by
+      ,updated_at
+      ,updated_by
+    ) VALUES (
+       #{userId}
+      ,#{emailAddress}
+      ,#{nickName}
+      ,#{approved}
+      ,#{admin}
+      ,#{blocked}
+      ,#{deleted}
+      ,#{createdAt}
+      ,#{createdBy}
+      ,#{updatedAt}
+      ,#{updatedBy}
+    )
+  </insert>
+
+  <update id="updateNickName" parameterType="jp.co.next_evolution.sandbox.infrastructure.db.entity.GenesisUser">
+    UPDATE genesis_user
+    SET
+       nick_name    = #{nickName}
+      ,updated_at   = #{updatedAt}
+      ,updated_by   = #{updatedBy}
+    WHERE
+      id            = #{id}
+      AND
+      user_id       = #{userId}
+      AND
+      email_address = #{emailAddress}
+  </update>
+
+  <select id="findByUserId" resultType="jp.co.next_evolution.sandbox.infrastructure.db.entity.GenesisUser">
+    SELECT
+       id               AS id
+      ,user_id          AS userId
+      ,email_address    AS emailAddress
+      ,nick_name        AS nickName
+      ,approved         AS approved
+      ,approved_at      AS approvedAt
+      ,admin            AS admin
+      ,blocked          AS blocked
+      ,deleted          AS deleted
+      ,created_at       AS createdAt
+      ,created_by       AS createdBy
+      ,updated_at       AS updatedAt
+      ,updated_by       AS updatedBy
+    FROM genesis_user
+    WHERE user_id = #{userId}
+  </select>
+
+  <update id="updateApproved" parameterType="jp.co.next_evolution.sandbox.infrastructure.db.entity.GenesisUser">
+    UPDATE genesis_user
+    SET
+       approved     = #{approved}
+      ,approved_at  = #{approvedAt}
+      ,updated_at   = #{updatedAt}
+      ,updated_by   = #{updatedBy}
+    WHERE
+      id      = #{id}
+      AND
+      user_id = #{userId}
+  </update>
+
+  <update id="updateBlocked" parameterType="jp.co.next_evolution.sandbox.infrastructure.db.entity.GenesisUser">
+    UPDATE genesis_user
+    SET
+       blocked      = #{blocked}
+      ,updated_at   = #{updatedAt}
+      ,updated_by   = #{updatedBy}
+    WHERE
+      id      = #{id}
+      AND
+      user_id = #{userId}
+  </update>
+
+  <update id="updateAdmin" parameterType="jp.co.next_evolution.sandbox.infrastructure.db.entity.GenesisUser">
+    UPDATE genesis_user
+    SET
+       admin        = #{admin}
+      ,updated_at   = #{updatedAt}
+      ,updated_by   = #{updatedBy}
+    WHERE
+      id      = #{id}
+      AND
+      user_id = #{userId}
+  </update>
+
+</mapper>

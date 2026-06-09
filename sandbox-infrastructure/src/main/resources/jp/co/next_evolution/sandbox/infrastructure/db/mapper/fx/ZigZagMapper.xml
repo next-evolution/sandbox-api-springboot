@@ -1,0 +1,509 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 4.0//EN"
+  "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="jp.co.next_evolution.sandbox.infrastructure.db.mapper.fx.ZigZagMapper">
+
+  <!-- ================================================================ -->
+  <!-- 検索                                                               -->
+  <!-- ================================================================ -->
+
+  <sql id="searchJoins">
+    FROM fx_zigzag_wave_${barType} C
+    LEFT JOIN fx_zigzag_wave_${barType} P
+          ON P.symbol = C.symbol AND P.depth = C.depth
+         AND P.wave_start = C.previous_wave_start
+    LEFT JOIN fx_zigzag_wave_${barType} N
+          ON N.symbol = C.symbol AND N.depth = C.depth
+         AND N.previous_wave_start = C.wave_start
+    LEFT JOIN fx_zigzag_wave_${barType} N2
+          ON N2.symbol = C.symbol AND N2.depth = C.depth
+         AND N2.previous_wave_start = N.wave_start
+    LEFT JOIN fx_zigzag_wave_4h T4H
+          ON T4H.symbol = C.symbol AND T4H.depth = C.depth
+         AND T4H.wave_start = (
+             SELECT wave_start FROM fx_zigzag_wave_4h
+             WHERE  symbol = C.symbol AND depth = C.depth
+                AND wave_end &lt;= C.wave_start
+                AND MOD(wave, 2) &lt;&gt; 0
+             ORDER BY wave_start DESC LIMIT 1
+         )
+  </sql>
+
+  <sql id="searchSmaJoins">
+    LEFT JOIN fx_bar_4h_sma  cur4h200s  ON cur4h200s.symbol  = C.symbol AND cur4h200s.bar_date_time  = C.wave_start AND cur4h200s.sma_range  = 200
+    LEFT JOIN fx_bar_4h_sma  cur4h200e  ON cur4h200e.symbol  = C.symbol AND cur4h200e.bar_date_time  = C.wave_end   AND cur4h200e.sma_range  = 200
+    LEFT JOIN fx_bar_4h_sma  cur4h75s   ON cur4h75s.symbol   = C.symbol AND cur4h75s.bar_date_time   = C.wave_start AND cur4h75s.sma_range   = 75
+    LEFT JOIN fx_bar_4h_sma  cur4h75e   ON cur4h75e.symbol   = C.symbol AND cur4h75e.bar_date_time   = C.wave_end   AND cur4h75e.sma_range   = 75
+    LEFT JOIN fx_bar_4h_sma  cur4h20s   ON cur4h20s.symbol   = C.symbol AND cur4h20s.bar_date_time   = C.wave_start AND cur4h20s.sma_range   = 20
+    LEFT JOIN fx_bar_4h_sma  cur4h20e   ON cur4h20e.symbol   = C.symbol AND cur4h20e.bar_date_time   = C.wave_end   AND cur4h20e.sma_range   = 20
+    LEFT JOIN fx_bar_1h_sma  cur1h200s  ON cur1h200s.symbol  = C.symbol AND cur1h200s.bar_date_time  = C.wave_start AND cur1h200s.sma_range  = 200
+    LEFT JOIN fx_bar_1h_sma  cur1h200e  ON cur1h200e.symbol  = C.symbol AND cur1h200e.bar_date_time  = C.wave_end   AND cur1h200e.sma_range  = 200
+    LEFT JOIN fx_bar_15m_sma cur15m200s ON cur15m200s.symbol = C.symbol AND cur15m200s.bar_date_time = C.wave_start AND cur15m200s.sma_range = 200
+    LEFT JOIN fx_bar_15m_sma cur15m200e ON cur15m200e.symbol = C.symbol AND cur15m200e.bar_date_time = C.wave_end   AND cur15m200e.sma_range = 200
+    LEFT JOIN fx_bar_4h_sma  t4h4h200s  ON t4h4h200s.symbol  = T4H.symbol AND t4h4h200s.bar_date_time  = T4H.wave_start AND t4h4h200s.sma_range  = 200
+    LEFT JOIN fx_bar_4h_sma  t4h4h200e  ON t4h4h200e.symbol  = T4H.symbol AND t4h4h200e.bar_date_time  = T4H.wave_end   AND t4h4h200e.sma_range  = 200
+    LEFT JOIN fx_bar_4h_sma  t4h4h75s   ON t4h4h75s.symbol   = T4H.symbol AND t4h4h75s.bar_date_time   = T4H.wave_start AND t4h4h75s.sma_range   = 75
+    LEFT JOIN fx_bar_4h_sma  t4h4h75e   ON t4h4h75e.symbol   = T4H.symbol AND t4h4h75e.bar_date_time   = T4H.wave_end   AND t4h4h75e.sma_range   = 75
+    LEFT JOIN fx_bar_4h_sma  t4h4h20s   ON t4h4h20s.symbol   = T4H.symbol AND t4h4h20s.bar_date_time   = T4H.wave_start AND t4h4h20s.sma_range   = 20
+    LEFT JOIN fx_bar_4h_sma  t4h4h20e   ON t4h4h20e.symbol   = T4H.symbol AND t4h4h20e.bar_date_time   = T4H.wave_end   AND t4h4h20e.sma_range   = 20
+    LEFT JOIN fx_bar_1h_sma  t4h1h200s  ON t4h1h200s.symbol  = T4H.symbol AND t4h1h200s.bar_date_time  = T4H.wave_start AND t4h1h200s.sma_range  = 200
+    LEFT JOIN fx_bar_1h_sma  t4h1h200e  ON t4h1h200e.symbol  = T4H.symbol AND t4h1h200e.bar_date_time  = T4H.wave_end   AND t4h1h200e.sma_range  = 200
+    LEFT JOIN fx_bar_15m_sma t4h15m200s ON t4h15m200s.symbol = T4H.symbol AND t4h15m200s.bar_date_time = T4H.wave_start AND t4h15m200s.sma_range = 200
+    LEFT JOIN fx_bar_15m_sma t4h15m200e ON t4h15m200e.symbol = T4H.symbol AND t4h15m200e.bar_date_time = T4H.wave_end   AND t4h15m200e.sma_range = 200
+    LEFT JOIN fx_zigzag_wave_4h dxy4h
+          ON dxy4h.symbol = 'DXY'
+         AND dxy4h.depth  = 12
+         AND dxy4h.wave_start = (
+             SELECT wave_start FROM fx_zigzag_wave_4h
+             WHERE  symbol = 'DXY' AND depth = 12
+                AND wave_start &lt;= C.wave_start
+             ORDER BY wave_start DESC LIMIT 1
+         )
+    LEFT JOIN fx_zigzag_wave_1h dxy1h
+          ON dxy1h.symbol = 'DXY'
+         AND dxy1h.depth  = 12
+         AND dxy1h.wave_start = (
+             SELECT wave_start FROM fx_zigzag_wave_1h
+             WHERE  symbol = 'DXY' AND depth = 12
+                AND wave_start &lt;= C.wave_start
+             ORDER BY wave_start DESC LIMIT 1
+         )
+  </sql>
+
+  <sql id="searchWhere">
+    WHERE C.symbol = #{symbol}
+      AND C.depth  = #{depth}
+      AND C.wave_start BETWEEN #{barDateTimeMin} AND #{barDateTimeMax}
+    <if test="wave != 0">AND C.wave = #{wave}</if>
+    <if test="previousWave != 0">AND P.wave = #{previousWave}</if>
+    <if test="nextWave != 0">AND N.wave = #{nextWave}</if>
+    <if test="next2Wave != 0">AND N2.wave = #{next2Wave}</if>
+    <if test="wave4h != 0">AND T4H.wave = #{wave4h}</if>
+  </sql>
+
+  <select id="searchCount" resultType="Integer">
+    SELECT COUNT(*)
+    <include refid="searchJoins"/>
+    <include refid="searchWhere"/>
+  </select>
+
+  <select id="search"
+          resultType="jp.co.next_evolution.sandbox.infrastructure.db.entity.FxZigZagSearchRow">
+    SELECT
+         C.symbol                              AS symbol
+        ,C.depth                               AS depth
+        ,C.wave_start                          AS curWaveStart
+        ,C.wave_end                            AS curWaveEnd
+        ,C.wave                                AS curWave
+        ,C.resistance                          AS curResistance
+        ,C.support                             AS curSupport
+        ,COALESCE(cur4h200s.sma_price,  0)    AS curSma4h200sS
+        ,COALESCE(cur4h200e.sma_price,  0)    AS curSma4h200sE
+        ,COALESCE(cur4h75s.sma_price,   0)    AS curSma4h75sS
+        ,COALESCE(cur4h75e.sma_price,   0)    AS curSma4h75sE
+        ,COALESCE(cur4h20s.sma_price,   0)    AS curSma4h20sS
+        ,COALESCE(cur4h20e.sma_price,   0)    AS curSma4h20sE
+        ,COALESCE(cur1h200s.sma_price,  0)    AS curSma1h200sS
+        ,COALESCE(cur1h200e.sma_price,  0)    AS curSma1h200sE
+        ,COALESCE(cur15m200s.sma_price, 0)    AS curSma15m200sS
+        ,COALESCE(cur15m200e.sma_price, 0)    AS curSma15m200sE
+        ,T4H.wave_start                        AS t4hWaveStart
+        ,T4H.wave_end                          AS t4hWaveEnd
+        ,COALESCE(T4H.wave,        0)          AS t4hWave
+        ,COALESCE(T4H.resistance,  0)          AS t4hResistance
+        ,COALESCE(T4H.support,     0)          AS t4hSupport
+        ,COALESCE(t4h4h200s.sma_price,  0)    AS t4hSma4h200sS
+        ,COALESCE(t4h4h200e.sma_price,  0)    AS t4hSma4h200sE
+        ,COALESCE(t4h4h75s.sma_price,   0)    AS t4hSma4h75sS
+        ,COALESCE(t4h4h75e.sma_price,   0)    AS t4hSma4h75sE
+        ,COALESCE(t4h4h20s.sma_price,   0)    AS t4hSma4h20sS
+        ,COALESCE(t4h4h20e.sma_price,   0)    AS t4hSma4h20sE
+        ,COALESCE(t4h1h200s.sma_price,  0)    AS t4hSma1h200sS
+        ,COALESCE(t4h1h200e.sma_price,  0)    AS t4hSma1h200sE
+        ,COALESCE(t4h15m200s.sma_price, 0)    AS t4hSma15m200sS
+        ,COALESCE(t4h15m200e.sma_price, 0)    AS t4hSma15m200sE
+        ,P.wave_start                          AS prvWaveStart
+        ,P.wave_end                            AS prvWaveEnd
+        ,P.wave                                AS prvWave
+        ,P.resistance                          AS prvResistance
+        ,P.support                             AS prvSupport
+        ,N.wave_start                          AS nxtWaveStart
+        ,N.wave_end                            AS nxtWaveEnd
+        ,N.wave                                AS nxtWave
+        ,N.resistance                          AS nxtResistance
+        ,N.support                             AS nxtSupport
+        ,N2.wave_start                         AS nx2WaveStart
+        ,N2.wave_end                           AS nx2WaveEnd
+        ,N2.wave                               AS nx2Wave
+        ,N2.resistance                         AS nx2Resistance
+        ,N2.support                            AS nx2Support
+        ,COALESCE(dxy4h.wave, 0)               AS waveDxy4h
+        ,COALESCE(dxy1h.wave, 0)               AS waveDxy1h
+    <include refid="searchJoins"/>
+    <include refid="searchSmaJoins"/>
+    <include refid="searchWhere"/>
+    ORDER BY C.wave_start DESC
+    <bind name="offset" value="(page - 1) * size"/>
+    <if test="offset &lt; 1">LIMIT #{size}</if>
+    <if test="offset &gt; 0">LIMIT #{size} OFFSET #{offset}</if>
+  </select>
+
+  <!-- ================================================================ -->
+  <!-- バーデータ                                                          -->
+  <!-- ================================================================ -->
+
+  <select id="getBarDataList"
+          resultType="jp.co.next_evolution.sandbox.infrastructure.db.entity.FxZigZagBarData">
+    SELECT
+         B.bar_date_time               AS barDateTime
+        ,B.open_price                  AS openPrice
+        ,B.high_price                  AS highPrice
+        ,B.low_price                   AS lowPrice
+        ,B.close_price                 AS closePrice
+        ,COALESCE(sma200.sma_price, 0) AS sma200
+        ,COALESCE(sma75.sma_price,  0) AS sma75
+        ,COALESCE(sma20.sma_price,  0) AS sma20
+    FROM (
+        SELECT
+            <if test='barType == "4h"'>
+               COALESCE(prev2.wave_start, prev.wave_start, cur.wave_start) AS barDateTimeMin
+              ,COALESCE(next3.wave_end, next2.wave_end, next.wave_end, cur.wave_end) AS barDateTimeMax
+            </if>
+            <if test='barType != "4h"'>
+               COALESCE(cur.wave_start, cur.wave_start) AS barDateTimeMin
+              ,COALESCE(next.wave_end, cur.wave_end) AS barDateTimeMax
+            </if>
+        FROM (
+            SELECT * FROM fx_zigzag_wave_4h
+            WHERE  symbol = #{symbol} AND depth = #{depth}
+               AND wave_start &lt;= #{waveStart}
+            ORDER BY wave_start DESC LIMIT 1
+        ) cur
+        LEFT JOIN fx_zigzag_wave_4h prev
+              ON prev.symbol     = cur.symbol
+             AND prev.depth      = cur.depth
+             AND prev.wave_start = cur.previous_wave_start
+        <if test='barType == "4h"'>
+        LEFT JOIN fx_zigzag_wave_4h prev2
+              ON prev2.symbol     = cur.symbol
+              AND prev2.depth      = cur.depth
+              AND prev2.wave_start = COALESCE(prev.previous_wave_start, cur.previous_wave_start)
+        </if>
+        LEFT JOIN fx_zigzag_wave_4h next
+              ON next.symbol     = cur.symbol
+             AND next.depth      = cur.depth
+             AND next.wave_start = cur.wave_end
+        <if test='barType == "4h"'>
+        LEFT JOIN fx_zigzag_wave_4h next2
+              ON next2.symbol      = cur.symbol
+              AND next2.depth      = cur.depth
+              AND next2.wave_start = COALESCE(next.wave_end ,cur.wave_end)
+        LEFT JOIN fx_zigzag_wave_4h next3
+              ON next3.symbol      = cur.symbol
+              AND next3.depth      = cur.depth
+              AND next3.wave_start = COALESCE(next2.wave_end, next.wave_end ,cur.wave_end)
+        </if>
+    ) range_
+    INNER JOIN fx_bar_${barType} B
+            ON B.symbol        = #{symbol}
+           AND B.bar_date_time BETWEEN range_.barDateTimeMin AND range_.barDateTimeMax
+    LEFT JOIN fx_bar_${barType}_sma sma200
+           ON sma200.symbol        = B.symbol
+          AND sma200.bar_date_time = B.bar_date_time
+          AND sma200.sma_range     = 200
+    LEFT JOIN fx_bar_${barType}_sma sma75
+           ON sma75.symbol        = B.symbol
+          AND sma75.bar_date_time = B.bar_date_time
+          AND sma75.sma_range     = 75
+    LEFT JOIN fx_bar_${barType}_sma sma20
+           ON sma20.symbol        = B.symbol
+          AND sma20.bar_date_time = B.bar_date_time
+          AND sma20.sma_range     = 20
+    ORDER BY B.bar_date_time
+  </select>
+
+  <!-- ================================================================ -->
+  <!-- ステータス                                                          -->
+  <!-- ================================================================ -->
+
+  <select id="getStatusList"
+          resultType="jp.co.next_evolution.sandbox.infrastructure.db.entity.FxZigZagStatus">
+    SELECT
+         bar.symbol
+        ,bar.barCount
+        ,bar.barDateTimeMin
+        ,bar.barDateTimeMax
+        ,zigzagCount
+        ,barDateTimeMinZigZag
+        ,barDateTimeMaxZigZag
+        ,breakResistanceCount
+        ,breakSupportCount
+    FROM
+    (
+        SELECT
+             symbol AS symbol
+            ,COUNT(*) AS barCount
+            ,DATE_FORMAT(MIN(bar_date_time), '%Y-%m-%d %H:%i') AS barDateTimeMin
+            ,DATE_FORMAT(MAX(bar_date_time), '%Y-%m-%d %H:%i') AS barDateTimeMax
+        FROM fx_bar_${barType}
+        GROUP BY symbol
+    ) bar
+    LEFT JOIN
+    (
+        SELECT
+             symbol           AS symbol
+            ,COUNT(*)         AS zigzagCount
+            ,DATE_FORMAT(MIN(bar_date_time), '%Y-%m-%d %H:%i') AS barDateTimeMinZigZag
+            ,DATE_FORMAT(MAX(bar_date_time), '%Y-%m-%d %H:%i') AS barDateTimeMaxZigZag
+            ,SUM(IF(break_resistance = 1, 1, 0))               AS breakResistanceCount
+            ,SUM(IF(break_support    = 1, 1, 0))               AS breakSupportCount
+        FROM fx_zigzag_${barType}
+        WHERE
+        depth = #{depth}
+        GROUP BY symbol
+    ) zig ON zig.symbol = bar.symbol
+    INNER JOIN fx_symbol c ON c.symbol = bar.symbol
+    WHERE c.symbol_type = #{symbolType}
+    ORDER BY c.sort_order
+  </select>
+
+  <select id="getStatus"
+          resultType="jp.co.next_evolution.sandbox.infrastructure.db.entity.FxZigZagStatus">
+    SELECT
+         #{symbol}          AS symbol
+        ,B.barDateTimeMin   AS barDateTimeMin
+        ,B.barDateTimeMax   AS barDateTimeMax
+        ,B.barCount         AS barCount
+        ,Z.barDateTimeMinZigZag   AS barDateTimeMinZigZag
+        ,Z.barDateTimeMaxZigZag   AS barDateTimeMaxZigZag
+        ,Z.zigzagCount            AS zigzagCount
+        ,Z.breakResistanceCount   AS breakResistanceCount
+        ,Z.breakSupportCount      AS breakSupportCount
+    FROM (
+        SELECT
+             DATE_FORMAT(MIN(bar_date_time), '%Y-%m-%d %H:%i') AS barDateTimeMin
+            ,DATE_FORMAT(MAX(bar_date_time), '%Y-%m-%d %H:%i') AS barDateTimeMax
+            ,COUNT(*)                                           AS barCount
+        FROM fx_bar_${barType}
+        WHERE symbol = #{symbol}
+    ) B
+    LEFT JOIN (
+        SELECT
+             DATE_FORMAT(MIN(bar_date_time), '%Y-%m-%d %H:%i') AS barDateTimeMinZigZag
+            ,DATE_FORMAT(MAX(bar_date_time), '%Y-%m-%d %H:%i') AS barDateTimeMaxZigZag
+            ,COUNT(*)                                           AS zigzagCount
+            ,SUM(IF(break_resistance = 1, 1, 0))               AS breakResistanceCount
+            ,SUM(IF(break_support    = 1, 1, 0))               AS breakSupportCount
+        FROM fx_zigzag_${barType}
+        WHERE symbol = #{symbol} AND depth = #{depth}
+    ) Z ON TRUE
+  </select>
+
+  <!-- ================================================================ -->
+  <!-- 生成                                                               -->
+  <!-- ================================================================ -->
+
+  <select id="targetBarCount" resultType="Integer">
+    SELECT COUNT(*)
+    FROM fx_bar_${barType}
+    WHERE symbol = #{symbol}
+      AND bar_date_time &gt;= #{barDateTime}
+  </select>
+
+  <sql id="zigzagColumns">
+         Z.symbol                              AS symbol
+        ,Z.depth                               AS depth
+        ,Z.bar_date_time                       AS barDateTime
+        ,Z.resistance                          AS resistance
+        ,Z.resistance_fractal                  AS resistanceFractal
+        ,Z.support                             AS support
+        ,Z.support_fractal                     AS supportFractal
+        ,Z.high                                AS priceHigh
+        ,Z.low                                 AS priceLow
+        ,Z.backstep_high                       AS backStepHigh
+        ,Z.backstep_low                        AS backStepLow
+        ,Z.fractal_high                        AS fractalHigh
+        ,Z.fractal_low                         AS fractalLow
+        ,Z.resistance_bar_date_time            AS resistanceBarDateTime
+        ,Z.resistance_fractal_bar_date_time    AS resistanceFractalBarDateTime
+        ,Z.support_bar_date_time               AS supportBarDateTime
+        ,Z.support_fractal_bar_date_time       AS supportFractalBarDateTime
+        ,Z.high_bar_date_time                  AS priceHighBarDateTime
+        ,Z.low_bar_date_time                   AS priceLowBarDateTime
+        ,Z.backstep_high_bar_date_time         AS backStepHighBarDateTime
+        ,Z.backstep_low_bar_date_time          AS backStepLowBarDateTime
+        ,Z.wave                                AS wave
+        ,Z.up_trend                            AS upTrend
+        ,Z.break_resistance                    AS breakResistance
+        ,Z.break_support                       AS breakSupport
+        ,Z.backstep_up                         AS backStepUp
+        ,Z.backstep_down                       AS backStepDown
+  </sql>
+
+  <select id="previousList"
+          resultType="jp.co.next_evolution.sandbox.infrastructure.db.entity.FxZigZag">
+    SELECT
+        <include refid="zigzagColumns"/>
+        ,B.high_price   AS barHighPrice
+        ,B.low_price    AS barLowPrice
+        ,B.close_price  AS barClosePrice
+        ,1              AS existsZigzag
+    FROM fx_zigzag_${barType} Z
+    INNER JOIN fx_bar_${barType} B
+           ON B.symbol = Z.symbol AND B.bar_date_time = Z.bar_date_time
+    WHERE Z.symbol = #{symbol}
+      AND Z.depth  = #{depth}
+      AND Z.bar_date_time &lt; #{barDateTime}
+    ORDER BY Z.bar_date_time DESC
+    LIMIT #{limit}
+  </select>
+
+  <select id="targetList"
+          resultType="jp.co.next_evolution.sandbox.infrastructure.db.entity.FxZigZag">
+    SELECT
+         B.symbol                              AS symbol
+        ,#{depth}                              AS depth
+        ,B.bar_date_time                       AS barDateTime
+        ,COALESCE(Z.resistance,          0)    AS resistance
+        ,COALESCE(Z.resistance_fractal,  0)    AS resistanceFractal
+        ,COALESCE(Z.support,             0)    AS support
+        ,COALESCE(Z.support_fractal,     0)    AS supportFractal
+        ,COALESCE(Z.high,                0)    AS priceHigh
+        ,COALESCE(Z.low,                 0)    AS priceLow
+        ,COALESCE(Z.backstep_high,       0)    AS backStepHigh
+        ,COALESCE(Z.backstep_low,        0)    AS backStepLow
+        ,COALESCE(Z.fractal_high,        0)    AS fractalHigh
+        ,COALESCE(Z.fractal_low,         0)    AS fractalLow
+        ,COALESCE(Z.resistance_bar_date_time,         B.bar_date_time) AS resistanceBarDateTime
+        ,COALESCE(Z.resistance_fractal_bar_date_time, B.bar_date_time) AS resistanceFractalBarDateTime
+        ,COALESCE(Z.support_bar_date_time,            B.bar_date_time) AS supportBarDateTime
+        ,COALESCE(Z.support_fractal_bar_date_time,    B.bar_date_time) AS supportFractalBarDateTime
+        ,COALESCE(Z.high_bar_date_time,               B.bar_date_time) AS priceHighBarDateTime
+        ,COALESCE(Z.low_bar_date_time,                B.bar_date_time) AS priceLowBarDateTime
+        ,COALESCE(Z.backstep_high_bar_date_time,      B.bar_date_time) AS backStepHighBarDateTime
+        ,COALESCE(Z.backstep_low_bar_date_time,       B.bar_date_time) AS backStepLowBarDateTime
+        ,COALESCE(Z.wave,            0)        AS wave
+        ,COALESCE(Z.up_trend,        0)        AS upTrend
+        ,COALESCE(Z.break_resistance,0)        AS breakResistance
+        ,COALESCE(Z.break_support,   0)        AS breakSupport
+        ,COALESCE(Z.backstep_up,     0)        AS backStepUp
+        ,COALESCE(Z.backstep_down,   0)        AS backStepDown
+        ,B.high_price                          AS barHighPrice
+        ,B.low_price                           AS barLowPrice
+        ,B.close_price                         AS barClosePrice
+        ,IF(Z.symbol IS NOT NULL, 1, 0)        AS existsZigzag
+    FROM fx_bar_${barType} B
+    LEFT JOIN fx_zigzag_${barType} Z
+           ON Z.symbol = B.symbol AND Z.bar_date_time = B.bar_date_time AND Z.depth = #{depth}
+    WHERE B.symbol = #{symbol}
+      AND B.bar_date_time &gt;= #{barDateTime}
+    ORDER BY B.bar_date_time
+    LIMIT #{limit}
+  </select>
+
+  <insert id="insert">
+    INSERT INTO fx_zigzag_${barType} (
+        symbol, depth, bar_date_time,
+        resistance, resistance_fractal, support, support_fractal,
+        high, low, backstep_high, backstep_low,
+        fractal_high, fractal_low,
+        resistance_bar_date_time, resistance_fractal_bar_date_time,
+        support_bar_date_time, support_fractal_bar_date_time,
+        high_bar_date_time, low_bar_date_time,
+        backstep_high_bar_date_time, backstep_low_bar_date_time,
+        backstep_up, backstep_down, wave, up_trend, break_resistance, break_support
+    ) VALUES (
+        #{e.symbol}, #{e.depth}, #{e.barDateTime},
+        #{e.resistance}, #{e.resistanceFractal}, #{e.support}, #{e.supportFractal},
+        #{e.priceHigh}, #{e.priceLow}, #{e.backStepHigh}, #{e.backStepLow},
+        #{e.fractalHigh}, #{e.fractalLow},
+        #{e.resistanceBarDateTime}, #{e.resistanceFractalBarDateTime},
+        #{e.supportBarDateTime}, #{e.supportFractalBarDateTime},
+        #{e.priceHighBarDateTime}, #{e.priceLowBarDateTime},
+        #{e.backStepHighBarDateTime}, #{e.backStepLowBarDateTime},
+        #{e.backStepUp}, #{e.backStepDown}, #{e.wave},
+        #{e.upTrend}, #{e.breakResistance}, #{e.breakSupport}
+    )
+  </insert>
+
+  <update id="update">
+    UPDATE fx_zigzag_${barType} SET
+        resistance                       = #{e.resistance}
+       ,resistance_fractal               = #{e.resistanceFractal}
+       ,support                          = #{e.support}
+       ,support_fractal                  = #{e.supportFractal}
+       ,high                             = #{e.priceHigh}
+       ,low                              = #{e.priceLow}
+       ,backstep_high                    = #{e.backStepHigh}
+       ,backstep_low                     = #{e.backStepLow}
+       ,fractal_high                     = #{e.fractalHigh}
+       ,fractal_low                      = #{e.fractalLow}
+       ,resistance_bar_date_time         = #{e.resistanceBarDateTime}
+       ,resistance_fractal_bar_date_time = #{e.resistanceFractalBarDateTime}
+       ,support_bar_date_time            = #{e.supportBarDateTime}
+       ,support_fractal_bar_date_time    = #{e.supportFractalBarDateTime}
+       ,high_bar_date_time               = #{e.priceHighBarDateTime}
+       ,low_bar_date_time                = #{e.priceLowBarDateTime}
+       ,backstep_high_bar_date_time      = #{e.backStepHighBarDateTime}
+       ,backstep_low_bar_date_time       = #{e.backStepLowBarDateTime}
+       ,backstep_up                      = #{e.backStepUp}
+       ,backstep_down                    = #{e.backStepDown}
+       ,wave                             = #{e.wave}
+       ,up_trend                         = #{e.upTrend}
+       ,break_resistance                 = #{e.breakResistance}
+       ,break_support                    = #{e.breakSupport}
+    WHERE symbol       = #{e.symbol}
+      AND depth        = #{e.depth}
+      AND bar_date_time = #{e.barDateTime}
+  </update>
+
+  <!-- ================================================================ -->
+  <!-- Wave                                                               -->
+  <!-- ================================================================ -->
+
+  <delete id="deleteWave">
+    DELETE FROM fx_zigzag_wave_${barType}
+    WHERE symbol    = #{symbol}
+      AND depth     = #{depth}
+      AND wave_start &gt;= #{barDateTime}
+  </delete>
+
+  <select id="getLastWave"
+          resultType="jp.co.next_evolution.sandbox.infrastructure.db.entity.FxZigZagWave">
+    SELECT
+         wave_start          AS waveStart
+        ,wave_end            AS waveEnd
+        ,wave                AS wave
+        ,resistance          AS resistance
+        ,support             AS support
+        ,previous_wave_start AS previousWaveStart
+        ,previous_wave       AS previousWave
+        ,wave_memo           AS waveMemo
+    FROM fx_zigzag_wave_${barType}
+    WHERE symbol = #{symbol}
+      AND depth  = #{depth}
+    ORDER BY wave_start DESC
+    LIMIT 1
+  </select>
+
+  <insert id="insertWaveBulk">
+    INSERT INTO fx_zigzag_wave_${barType} (
+        symbol, depth, wave_start, wave_end, wave,
+        resistance, support, previous_wave_start, previous_wave, wave_memo
+    ) VALUES
+    <foreach collection="list" item="item" separator=",">
+      (#{symbol}, #{depth}, #{item.waveStart}, #{item.waveEnd}, #{item.wave},
+       #{item.resistance}, #{item.support},
+       #{item.previousWaveStart}, #{item.previousWave}, #{item.waveMemo})
+    </foreach>
+    ON DUPLICATE KEY UPDATE
+        wave_end            = VALUES(wave_end),
+        wave                = VALUES(wave),
+        resistance          = VALUES(resistance),
+        support             = VALUES(support),
+        previous_wave_start = VALUES(previous_wave_start),
+        previous_wave       = VALUES(previous_wave),
+        wave_memo           = VALUES(wave_memo)
+  </insert>
+
+</mapper>

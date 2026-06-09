@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 4.0//EN"
+  "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="jp.co.next_evolution.sandbox.infrastructure.db.mapper.fx.TradeSimulationMapper">
+
+  <select id="getOpenPrice" resultType="java.math.BigDecimal">
+    SELECT
+        COALESCE(m15.open_price, h1.open_price, tmp.open_price, 0)
+    FROM
+    (
+        SELECT
+            0          AS open_price
+           ,#{symbol}  AS symbol
+    ) tmp
+    LEFT JOIN fx_bar_15m m15
+      ON    m15.symbol        = tmp.symbol
+        AND m15.bar_date_time = STR_TO_DATE(#{contractHm}, '%Y%m%d%H%i')
+    LEFT JOIN fx_bar_1h h1
+      ON    h1.symbol        = tmp.symbol
+        AND h1.bar_date_time = STR_TO_DATE(#{contractHm}, '%Y%m%d%H')
+  </select>
+
+</mapper>

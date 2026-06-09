@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 4.0//EN"
+  "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="jp.co.next_evolution.sandbox.infrastructure.db.mapper.fx.SymbolMapper">
+
+  <select id="getList" resultType="jp.co.next_evolution.sandbox.infrastructure.db.entity.KeyValueRecord">
+    SELECT
+       symbol AS `key`
+      ,name   AS `value`
+    FROM fx_symbol
+    WHERE deleted = 0 AND symbol_type = #{symbolType}
+    ORDER BY sort_order
+  </select>
+
+  <select id="searchCount" resultType="Integer">
+    SELECT COUNT(symbol)
+    FROM fx_symbol
+    WHERE deleted = 0
+    <if test="symbolType != null and symbolType != ''">
+      AND symbol_type = #{symbolType}
+    </if>
+  </select>
+
+  <select id="search" resultType="jp.co.next_evolution.sandbox.infrastructure.db.entity.FxSymbol">
+    SELECT
+        symbol        AS symbol
+        ,symbol_type   AS symbolType
+        ,name          AS name
+        ,valid_scale   AS validScale
+        ,FORMAT(target_volatility, valid_scale)  AS targetVolatility
+        ,sort_order    AS sortOrder
+        ,deleted       AS deleted
+        ,created_at    AS createdAt
+        ,created_by    AS createdBy
+        ,updated_at    AS updatedAt
+        ,updated_by    AS updatedBy
+    FROM fx_symbol
+    WHERE deleted = 0
+    <if test="symbolType != null and symbolType != ''">
+      AND symbol_type = #{symbolType}
+    </if>
+    ORDER BY sort_order
+    <bind name="offset" value="(page - 1) * size"/>
+    <if test="offset == 0 || offset &lt; 0">LIMIT 0, #{size}</if>
+    <if test="offset &gt; 0">LIMIT #{offset}, #{size}</if>
+  </select>
+
+  <select id="get" resultType="jp.co.next_evolution.sandbox.infrastructure.db.entity.FxSymbol">
+    SELECT
+         symbol        AS symbol
+        ,symbol_type   AS symbolType
+        ,name          AS name
+        ,valid_scale   AS validScale
+        ,FORMAT(target_volatility, valid_scale) AS targetVolatility
+        ,sort_order    AS sortOrder
+        ,deleted       AS deleted
+        ,created_at    AS createdAt
+        ,created_by    AS createdBy
+        ,updated_at    AS updatedAt
+        ,updated_by    AS updatedBy
+    FROM fx_symbol
+    WHERE symbol = #{symbol}
+  </select>
+
+  <select id="exists" resultType="boolean">
+    SELECT EXISTS
+    (
+        SELECT *
+        FROM fx_symbol
+        WHERE symbol = #{symbol}
+    )
+  </select>
+
+  <insert id="insert" parameterType="jp.co.next_evolution.sandbox.infrastructure.db.entity.FxSymbol">
+    INSERT INTO fx_symbol (
+         symbol
+        ,symbol_type
+        ,name
+        ,valid_scale
+        ,target_volatility
+        ,sort_order
+        ,deleted
+        ,created_at
+        ,created_by
+        ,updated_at
+        ,updated_by
+    ) VALUES (
+         #{symbol}
+        ,#{symbolType}
+        ,#{name}
+        ,#{validScale}
+        ,#{targetVolatility}
+        ,#{sortOrder}
+        ,#{deleted}
+        ,#{createdAt}
+        ,#{createdBy}
+        ,#{updatedAt}
+        ,#{updatedBy}
+    );
+  </insert>
+
+  <update id="update" parameterType="jp.co.next_evolution.sandbox.infrastructure.db.entity.FxSymbol">
+    UPDATE fx_symbol
+    SET
+         symbol_type       = #{symbolType}
+        ,name              = #{name}
+        ,valid_scale       = #{validScale}
+        ,target_volatility = #{targetVolatility}
+        ,sort_order        = #{sortOrder}
+        ,updated_at        = #{updatedAt}
+        ,updated_by        = #{updatedBy}
+    WHERE symbol = #{symbol}
+  </update>
+
+  <update id="updateSymbol">
+    UPDATE fx_symbol
+    SET
+         symbol            = #{symbol.symbol}
+        ,symbol_type       = #{symbol.symbolType}
+        ,name              = #{symbol.name}
+        ,valid_scale       = #{symbol.validScale}
+        ,target_volatility = #{symbol.targetVolatility}
+        ,sort_order        = #{symbol.sortOrder}
+        ,updated_at        = #{symbol.updatedAt}
+        ,updated_by        = #{symbol.updatedBy}
+    WHERE symbol = #{baseSymbol}
+  </update>
+</mapper>

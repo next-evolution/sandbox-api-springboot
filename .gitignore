@@ -1,6 +1,16 @@
+/local/work/**
+/local/storage/data/**
+!backup_genesis_local.sh
+
+/.idea/**
+/.run/**
+
 .gradle
 **/build/
+**/bin/
 !**/src/**/build/
+
+.env
 
 # Ignore Gradle GUI config
 gradle-app.setting
