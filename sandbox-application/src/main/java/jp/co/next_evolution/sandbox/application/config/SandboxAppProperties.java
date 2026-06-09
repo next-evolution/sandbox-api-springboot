@@ -10,8 +10,8 @@ import org.springframework.stereotype.Component;
 @Getter
 @Setter
 @Component
-@ConfigurationProperties(prefix = "genesis.app")
-public class GenesisAppProperties {
+@ConfigurationProperties(prefix = "sandbox.app")
+public class SandboxAppProperties {
 
   private List<String> indicatorExcludeList = new ArrayList<>();
 

@@ -8,8 +8,8 @@ import org.springframework.stereotype.Component;
 @Getter
 @Setter
 @Component
-@ConfigurationProperties(prefix = "genesis.storage.data")
-public class GenesisStorageProperties {
+@ConfigurationProperties(prefix = "sandbox.storage.data")
+public class SandboxStorageProperties {
 
   private String bucket;
 

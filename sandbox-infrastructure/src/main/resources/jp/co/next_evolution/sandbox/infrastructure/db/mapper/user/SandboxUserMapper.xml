@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 4.0//EN" "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="jp.co.next_evolution.sandbox.infrastructure.db.mapper.user.GenesisUserMapper">
+<mapper namespace="jp.co.next_evolution.sandbox.infrastructure.db.mapper.user.SandboxUserMapper">
 
-  <select id="login" resultType="jp.co.next_evolution.sandbox.infrastructure.db.entity.GenesisUser">
+  <select id="login" resultType="jp.co.next_evolution.sandbox.infrastructure.db.entity.SandboxUser">
     SELECT
        id               AS id
       ,user_id          AS userId
@@ -17,7 +17,7 @@
       ,created_by       AS createdBy
       ,updated_at       AS updatedAt
       ,updated_by       AS updatedBy
-    FROM genesis_user
+    FROM sandbox_user
     WHERE
         user_id       = #{userId}
         AND
@@ -26,7 +26,7 @@
 
   <select id="searchCount" resultType="int">
     SELECT COUNT(id)
-    FROM genesis_user
+    FROM sandbox_user
     WHERE deleted = FALSE
     <if test="emailAddress != null and emailAddress != ''">
       AND email_address LIKE '%${emailAddress}%'
@@ -36,7 +36,7 @@
     </if>
   </select>
 
-  <select id="search" resultType="jp.co.next_evolution.sandbox.infrastructure.db.entity.GenesisUser">
+  <select id="search" resultType="jp.co.next_evolution.sandbox.infrastructure.db.entity.SandboxUser">
     SELECT
        id               AS id
       ,user_id          AS userId
@@ -48,7 +48,7 @@
       ,blocked          AS blocked
       ,created_at       AS createdAt
       ,updated_at       AS updatedAt
-    FROM genesis_user
+    FROM sandbox_user
     WHERE deleted = FALSE
     <if test="emailAddress != null and emailAddress != ''">
       AND email_address LIKE '%${emailAddress}%'
@@ -65,14 +65,14 @@
   <select id="existsByUserId" resultType="boolean">
     SELECT EXISTS(
       SELECT 1
-      FROM genesis_user
+      FROM sandbox_user
       WHERE user_id = #{userId}
     )
   </select>
 
-  <insert id="insertUser" parameterType="jp.co.next_evolution.sandbox.infrastructure.db.entity.GenesisUser"
+  <insert id="insertUser" parameterType="jp.co.next_evolution.sandbox.infrastructure.db.entity.SandboxUser"
           useGeneratedKeys="true" keyProperty="id">
-    INSERT INTO genesis_user (
+    INSERT INTO sandbox_user (
        user_id
       ,email_address
       ,nick_name
@@ -99,8 +99,8 @@
     )
   </insert>
 
-  <update id="updateNickName" parameterType="jp.co.next_evolution.sandbox.infrastructure.db.entity.GenesisUser">
-    UPDATE genesis_user
+  <update id="updateNickName" parameterType="jp.co.next_evolution.sandbox.infrastructure.db.entity.SandboxUser">
+    UPDATE sandbox_user
     SET
        nick_name    = #{nickName}
       ,updated_at   = #{updatedAt}
@@ -113,7 +113,7 @@
       email_address = #{emailAddress}
   </update>
 
-  <select id="findByUserId" resultType="jp.co.next_evolution.sandbox.infrastructure.db.entity.GenesisUser">
+  <select id="findByUserId" resultType="jp.co.next_evolution.sandbox.infrastructure.db.entity.SandboxUser">
     SELECT
        id               AS id
       ,user_id          AS userId
@@ -128,12 +128,12 @@
       ,created_by       AS createdBy
       ,updated_at       AS updatedAt
       ,updated_by       AS updatedBy
-    FROM genesis_user
+    FROM sandbox_user
     WHERE user_id = #{userId}
   </select>
 
-  <update id="updateApproved" parameterType="jp.co.next_evolution.sandbox.infrastructure.db.entity.GenesisUser">
-    UPDATE genesis_user
+  <update id="updateApproved" parameterType="jp.co.next_evolution.sandbox.infrastructure.db.entity.SandboxUser">
+    UPDATE sandbox_user
     SET
        approved     = #{approved}
       ,approved_at  = #{approvedAt}
@@ -145,8 +145,8 @@
       user_id = #{userId}
   </update>
 
-  <update id="updateBlocked" parameterType="jp.co.next_evolution.sandbox.infrastructure.db.entity.GenesisUser">
-    UPDATE genesis_user
+  <update id="updateBlocked" parameterType="jp.co.next_evolution.sandbox.infrastructure.db.entity.SandboxUser">
+    UPDATE sandbox_user
     SET
        blocked      = #{blocked}
       ,updated_at   = #{updatedAt}
@@ -157,8 +157,8 @@
       user_id = #{userId}
   </update>
 
-  <update id="updateAdmin" parameterType="jp.co.next_evolution.sandbox.infrastructure.db.entity.GenesisUser">
-    UPDATE genesis_user
+  <update id="updateAdmin" parameterType="jp.co.next_evolution.sandbox.infrastructure.db.entity.SandboxUser">
+    UPDATE sandbox_user
     SET
        admin        = #{admin}
       ,updated_at   = #{updatedAt}

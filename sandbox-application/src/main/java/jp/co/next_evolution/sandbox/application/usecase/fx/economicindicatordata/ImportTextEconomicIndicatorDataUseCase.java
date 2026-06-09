@@ -9,9 +9,9 @@ import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import jp.co.next_evolution.sandbox.application.config.GenesisStorageProperties;
+import jp.co.next_evolution.sandbox.application.config.SandboxStorageProperties;
 import jp.co.next_evolution.sandbox.application.dto.fx.FileImportResult;
-import jp.co.next_evolution.sandbox.domain.exception.GenesisApiException;
+import jp.co.next_evolution.sandbox.domain.exception.SandboxApiException;
 import jp.co.next_evolution.sandbox.domain.model.fx.Country;
 import jp.co.next_evolution.sandbox.domain.model.fx.EconomicIndicator;
 import jp.co.next_evolution.sandbox.domain.model.fx.EconomicIndicatorData;
@@ -31,7 +31,7 @@ public class ImportTextEconomicIndicatorDataUseCase {
 
   private final EconomicIndicatorDataParser parser;
 
-  private final GenesisStorageProperties genesisStorageProperties;
+  private final SandboxStorageProperties sandboxStorageProperties;
 
   private final EconomicIndicatorDataRepository economicIndicatorDataRepository;
 
@@ -67,7 +67,7 @@ public class ImportTextEconomicIndicatorDataUseCase {
     try {
       dataList = parser.parseFile(savedPath, entry.fileName(), countryMap, indicatorMap);
     } catch (Exception e) {
-      throw new GenesisApiException(e.getMessage());
+      throw new SandboxApiException(e.getMessage());
     }
 
     int deleteCount = economicIndicatorDataRepository.deleteLoad();
@@ -105,15 +105,15 @@ public class ImportTextEconomicIndicatorDataUseCase {
   private Path saveFile(String fileName, InputStream inputStream, String userSub) {
 
     try {
-      String bucket = genesisStorageProperties.getBucket();
-      String fx = genesisStorageProperties.getFx();
+      String bucket = sandboxStorageProperties.getBucket();
+      String fx = sandboxStorageProperties.getFx();
       Path uploadDir = Paths.get(bucket, fx, "EconomicIndicatorDataService", userSub);
       Files.createDirectories(uploadDir);
       Path savedFile = uploadDir.resolve(fileName);
       Files.copy(inputStream, savedFile, StandardCopyOption.REPLACE_EXISTING);
       return savedFile;
     } catch (IOException e) {
-      throw new GenesisApiException("ファイル保存に失敗しました: " + fileName, e);
+      throw new SandboxApiException("ファイル保存に失敗しました: " + fileName, e);
     }
 
   }

@@ -14,7 +14,7 @@ import jp.co.next_evolution.sandbox.application.usecase.fx.economicindicatordata
 import jp.co.next_evolution.sandbox.application.usecase.fx.economicindicatordata.ImportTextEconomicIndicatorDataUseCase;
 import jp.co.next_evolution.sandbox.application.usecase.fx.economicindicatordata.SearchEconomicIndicatorDataUseCase;
 import jp.co.next_evolution.sandbox.application.usecase.fx.economicindicatordata.UpdateEconomicIndicatorDataUseCase;
-import jp.co.next_evolution.sandbox.domain.exception.GenesisApiException;
+import jp.co.next_evolution.sandbox.domain.exception.SandboxApiException;
 import jp.co.next_evolution.sandbox.domain.model.auth.AuthUser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -107,7 +107,7 @@ public class EconomicIndicatorDataController {
                   return new ImportTextEconomicIndicatorDataUseCase.FileEntry(
                       f.getOriginalFilename(), f.getInputStream(), f.getSize());
                 } catch (Exception e) {
-                  throw new GenesisApiException("ファイル読み込みに失敗しました: " + f.getOriginalFilename(), e);
+                  throw new SandboxApiException("ファイル読み込みに失敗しました: " + f.getOriginalFilename(), e);
                 }
               })
               .toList();

@@ -8,7 +8,7 @@ import org.springframework.web.client.RestClient;
 @Configuration
 public class FxRateClientConfig {
 
-  @Value("${genesis.external.gaitame-price-rate}")
+  @Value("${sandbox.external.gaitame-price-rate}")
   private String gaitamePriceRate;
 
   @Bean("fxRateGaitameClient")

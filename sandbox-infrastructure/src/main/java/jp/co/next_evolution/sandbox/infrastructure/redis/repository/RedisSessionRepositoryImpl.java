@@ -13,7 +13,7 @@ import org.springframework.stereotype.Repository;
 @RequiredArgsConstructor
 public class RedisSessionRepositoryImpl implements SessionRepository {
 
-  @Value("${genesis.session-ttl}")
+  @Value("${sandbox.session-ttl}")
   private int sessionTtl;
 
   private static final String KEY_PREFIX = "session:";

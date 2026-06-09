@@ -12,7 +12,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class GenesisUser extends MasterColumns {
+public class SandboxUser extends MasterColumns {
 
   private Long id;
   private String userId;

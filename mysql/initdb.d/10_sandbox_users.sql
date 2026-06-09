@@ -1,4 +1,4 @@
-CREATE TABLE `genesis_user` (
+CREATE TABLE `sandbox_user` (
   `id` int NOT NULL auto_increment COMMENT 'ID',
   `user_id` varchar(64) NOT NULL COMMENT 'ユーザID(cognito sub)',
   `email_address` varchar(128) NOT NULL COMMENT 'Emailアドレス',

@@ -1,4 +1,4 @@
-genesis:
+sandbox:
   app:
     import-check-skip: true # 初期設定の場合は既存レコード 0件でもimportできるようにする。
 
@@ -7,7 +7,7 @@ logging:
     jp:
       co:
         next_evolution:
-          genesis:
+          sandbox:
 #            api: DEBUG
             application: DEBUG
 #            domain: DEBUG
