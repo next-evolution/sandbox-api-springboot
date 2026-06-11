@@ -1,5 +1,5 @@
-DROP DATABASE IF EXISTS sandbox_local;
+DROP DATABASE IF EXISTS sandbox;
 
-CREATE DATABASE sandbox_local;
+CREATE DATABASE sandbox;
 
 flush privileges;

@@ -1,3 +1,8 @@
+# docs: yaml/md のみ管理対象、それ以外は除外
+docs/*
+!docs/*.yaml
+!docs/*.md
+
 /local/work/**
 /local/storage/data/**
 !backup_genesis_local.sh
