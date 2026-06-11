@@ -64,3 +64,8 @@ docker compose up -d
 ```
 
 MySQL はポート `43306`、Redis はポート `46379` で公開されます。
+
+# API Documentation
+
+- OpenAPI Spec: [api-docs.yaml](./docs/api-docs.yaml)
+- API Docs: https://next-evolution.github.io/sandbox-api-springboot/
