@@ -3,9 +3,9 @@ docs/*
 !docs/*.yaml
 !docs/*.md
 
-/local/work/**
-/local/storage/data/**
-!backup_genesis_local.sh
+# local: 
+local/*
+!local/work/backup_sandbox.sh
 
 /.idea/**
 /.run/**
@@ -34,3 +34,8 @@ gradle-app.setting
 .project
 # JDT-specific (Eclipse Java Development Tools)
 .classpath
+
+# Editor/IDE
+.idea/
+.vscode/
+.DS_Store
