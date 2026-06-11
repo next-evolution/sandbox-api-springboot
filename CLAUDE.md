@@ -1,31 +1,62 @@
-# CLAUDE.md
+# Spring Boot RestAPI
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+Spring Boot 3 / Java 21 で構築された RestAPI。
+
+---
+
+## このファイルの管理方針
+
+**CLAUDE.md は「Claudeの行動を変える指示書」** であり、ドキュメントではない。
+毎回コンテキストに全文読み込まれるため、肥大化させない。
+
+| 種類 | 置き場所 |
+|---|---|
+| コーディング規約・禁止事項 | **CLAUDE.md** |
+| アーキテクチャの制約（依存方向など） | **CLAUDE.md** |
+| ビルド・実行コマンド | **CLAUDE.md** |
+| 重要な落とし穴（Stream、DateTime など） | **CLAUDE.md** |
+| エンドポイント一覧 | `docs/api.md` |
+| アーキテクチャ詳細・認証フロー・ライブラリ | `docs/architecture.md` |
+| タスク指示（step 系） | **プロンプトで渡す** |
+
+---
+
+## ドキュメント参照先
+
+| 内容 | ファイル |
+|---|---|
+| APIエンドポイント一覧・レスポンス仕様 | [docs/api.md](docs/api.md) |
+| アーキテクチャ詳細・認証フロー・モジュール構成 | [docs/architecture.md](docs/architecture.md) |
+
+---
 
 ## 言語設定
+
 - 常に日本語で会話する
 - コメントも日本語で記述する
 - エラーメッセージの説明も日本語で行う
 
+---
+
 ## Build & Run
 
 ```bash
-# Build all modules
+# ビルド
 ./gradlew build
 
-# Run the API server (requires env vars — see below)
+# 実行（環境変数が必要）
 ./gradlew :sandbox-api:bootRun
 
-# Build without tests
+# テスト省略ビルド
 ./gradlew build -x test
 
-# Checkstyle (runs automatically on build)
+# Checkstyle（ビルド時に自動実行）
 ./gradlew checkstyleMain
 ```
 
-### Required Environment Variables
+### 必要な環境変数
 
-| Variable | Example |
+| 変数名 | 例 |
 |---|---|
 | DB_HOST | localhost |
 | DB_PORT | 43306 |
@@ -35,65 +66,69 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 | REDIS_HOST | localhost |
 | REDIS_PORT | 46379 |
 | JWT_ISSUER1 | https://cognito-idp.ap-northeast-1.amazonaws.com/... |
-| JWT_AUDIENCE1/2/3 | Cognito App Client IDs |
+| JWT_AUDIENCE1/2/3 | Cognito App Client ID |
 | JWT_ORIGIN1/2 | http://localhost, http://localhost:3000 |
 
-### Local Infrastructure
+### ローカルインフラ起動
 
 ```bash
-# Start MySQL + Redis via Docker
+# MySQL（43306）+ Redis（46379）を Docker で起動
 docker compose up -d
 ```
 
-MySQL is exposed on port 43306, Redis on 46379.
+---
 
-## Architecture
+## アーキテクチャ
 
-This is a **Spring Boot 3 / Java 21 multi-module Gradle project** following DDD (Domain-Driven Design) with strict layer separation.
+DDD（ドメイン駆動設計）に基づくマルチモジュール構成。詳細は [docs/architecture.md](docs/architecture.md) 参照。
 
-### Module Dependency Flow
+### モジュール依存関係
 
 ```
 sandbox-api  →  sandbox-application  →  sandbox-domain
      ↓                                        ↑
 sandbox-security               sandbox-infrastructure
-     ↓                                        ↑
                   (runtimeOnly) ──────────────┘
 ```
 
-- **sandbox-domain** — Domain models (value objects, aggregates), repository interfaces, and domain exceptions. No framework dependencies beyond Spring Security Core.
-- **sandbox-application** — Use cases (`*UseCase.java`), commands, and DTOs. Depends only on `sandbox-domain`. Each use case is a single `@Service` class with an `execute()` method.
-- **sandbox-infrastructure** — Repository implementations (`*RepositoryImpl`), MyBatis mappers, Redis config. Uses `Collectors.toList()` (not `Stream.toList()`) to produce mutable `ArrayList` for Redis serialization compatibility.
-- **sandbox-api** — REST controllers, request/response DTOs, `GlobalExceptionHandler`. Produces the executable JAR.
-- **sandbox-security** — JWT filter (`JwtAuthFilter`), auth interceptor (`AuthInterceptor`), Spring Security config.
+### パッケージルート
 
-### Authentication Flow
+`jp.co.next_evolution.sandbox`
 
-1. All requests pass through `JwtAuthFilter` (OncePerRequestFilter) — validates RS256 JWT (AWS Cognito), then looks up `AuthUser` from Redis (which holds the `admin` flag), sets `SecurityContextHolder`, updates Redis session TTL.
-2. `AuthInterceptor` (HandlerInterceptor) checks `SecurityContextHolder` for `AuthUser`. Returns 401 if absent.
-3. Mark controller methods with `@PublicApi` to skip auth in the interceptor.
-4. `POST /api/v1/auth/login` — verifies JWT email matches BASE64-decoded request body email, fetches `User` from DB (including `admin` flag), then saves `AuthUser` with `admin` flag to Redis.
+---
 
-### AuthUser
+## 実装規約
 
-`AuthUser` (`sandbox-domain/.../model/auth/AuthUser.java`) は JWT クレームと DB の admin フラグを保持する Record。
+### エラー型
 
-- フィールド: `sub`, `email`, `emailVerified`, `admin`
-- `isAdmin()` メソッドで管理者判定
-- `UserDetails` を implements しているが、`getUsername()` / `getPassword()` / `isEnabled()` / `getAuthorities()` には `@JsonIgnore` を付与し、Redis の JSON にはレコードコンポーネントのみ保存される
-- `JwtProvider.parse()` では JWT から admin 情報を得られないため `admin=false` で生成し、`JwtAuthFilter` で Redis から admin 付き `AuthUser` を上書き取得する
+| 例外クラス | HTTP ステータス |
+|---|---|
+| AuthenticationException | 401 UNAUTHORIZED |
+| ForbiddenException | 403 FORBIDDEN |
+| NotFoundException | 404 NOT FOUND |
+| DuplicateException / InsertException / UpdateException | 400 BAD REQUEST |
 
-### パスパラメータの userId
+### Stream / Collection
 
-パスに `{userId}` を含むエンドポイントでは、userId は Base64 エンコード済みで渡される。`UserId.decodeUserIdValue()` でデコードすること。
+- `sandbox-application`: `Stream.toList()`（immutable、Redis 非対象）
+- `sandbox-infrastructure`: `.collect(Collectors.toList())`（Redis シリアライズのため可変 ArrayList が必要）
+
+### 日時フォーマット
+
+- `LocalDateTime` は RFC 3339 形式 `yyyy-MM-dd'T'HH:mm:ssXXX`（例: `2026-01-02T11:22:33+09:00`）
+- `JacksonConfig` でグローバル設定済み。DTO に `@JsonFormat` / `@JsonSerialize` / `@JsonDeserialize` を個別付与しない
+- `LocalDate` は対象外（既存の `@JsonFormat(pattern = "yyyy-MM-dd")` をそのまま使用）
+
+### userId のデコード
+
+パスパラメータ `{userId}` は Base64 エンコード済み。`UserId.decodeUserIdValue()` でデコードする。
+userId・email はリクエストボディに含めず、`AuthUser`（`authUser.sub()`, `authUser.email()`）から取得する。
 
 ```java
 String userId = UserId.decodeUserIdValue(userIdBase64);
 ```
 
-また、userId・email はリクエストボディには含めず、JWT の `AuthUser` から取得する（`authUser.sub()`, `authUser.email()`）。
-
-### 管理者専用 API の実装パターン
+### 管理者専用 API
 
 ```java
 @GetMapping
@@ -105,36 +140,10 @@ public ResponseEntity<ApiResponse> someAdminApi(@AuthenticationPrincipal AuthUse
 }
 ```
 
-- `ForbiddenException` (`sandbox-domain/.../exception/ForbiddenException.java`) → HTTP 403 FORBIDDEN
+### 認証フロー（概要）
 
-### Redis Usage
+詳細は [docs/architecture.md](docs/architecture.md) 参照。
 
-- Sessions are stored and managed via `SessionRepository` (domain interface) / `RedisSessionRepositoryImpl`.
-- Master data (FX symbols, countries) is cached in Redis via `MasterCacheRepository` with a cache-aside pattern: read from Redis → on miss, read from DB and write back to Redis. Cache keys are built from `Symbol.class.getSimpleName() + symbolType`.
-
-### API Conventions
-
-- Base path: `/api` (context-path), versioned as `/v1/...`
-- All responses wrap data in `ApiResponse` / `ApiSearchResponse` with a `ReturnCode` (Ok, Warn, etc.).
-- Domain exceptions are mapped to HTTP status codes in `GlobalExceptionHandler`:
-  - `AuthenticationException` → 401 UNAUTHORIZED
-  - `ForbiddenException` → 403 FORBIDDEN
-  - `NotFoundException` → 404 NOT FOUND
-  - `DuplicateException`, `InsertException`, `UpdateException` → 400 BAD REQUEST
-- Checkstyle (`checkstyle.xml`) is enforced on every build.
-
-### Package Root
-
-`jp.co.next_evolution.sandbox`
-
-### Stream / Collection Convention
-
-- In `sandbox-application`: use `Stream.toList()` (immutable, fine for non-Redis use).
-- In `sandbox-infrastructure`: use `.collect(Collectors.toList())` (returns mutable `ArrayList`, required for Redis serialization).
-
-### DateTime Format Convention
-
-- API の `LocalDateTime` フィールドは RFC 3339 形式 `yyyy-MM-dd'T'HH:mm:ssXXX`（例: `2026-01-02T11:22:33+09:00`）で統一する。
-- シリアライズ/デシリアライズは `JacksonConfig`（`sandbox-api/config/JacksonConfig.java`）でグローバル設定済み。JST固定（`ZoneOffset.ofHours(9)`）で `LocalDateTime ↔ OffsetDateTime` 変換を行う。
-- Request / Response DTOに `@JsonFormat` / `@JsonSerialize` / `@JsonDeserialize` を個別付与しない（グローバル設定が適用される）。
-- `LocalDate` 型は対象外。既存の `@JsonFormat(pattern = "yyyy-MM-dd")` をそのまま使用する。
+1. `JwtAuthFilter` — RS256 JWT 検証 → Redis から `AuthUser`（admin フラグ含む）を取得 → `SecurityContextHolder` にセット
+2. `AuthInterceptor` — `AuthUser` がなければ 401
+3. `@PublicApi` — インターセプターの認証チェックをスキップ
