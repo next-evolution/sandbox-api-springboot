@@ -52,6 +52,9 @@ Spring Boot 3 / Java 21 で構築された RestAPI。
 
 # Checkstyle（ビルド時に自動実行）
 ./gradlew checkstyleMain
+
+# docker compose .env.compose を編集して実際の値を設定
+docker compose --env-file .env.compose up -d
 ```
 
 ### 必要な環境変数
