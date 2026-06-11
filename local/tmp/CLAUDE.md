@@ -1,140 +1,313 @@
-# CLAUDE.md
+# Golang Gin RestAPI
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+Java SpringBoot で構築された RestAPI をベースに Go Gin の RestAPI を構築。
 
-## 言語設定
-- 常に日本語で会話する
-- コメントも日本語で記述する
-- エラーメッセージの説明も日本語で行う
+* ベースとなるソース: `./docs/base_src`（**読み取りのみ・書き込み禁止**）
+
+---
+
+## このファイルの管理方針
+
+**CLAUDE.md は「Claudeの行動を変える指示書」** であり、ドキュメントではない。
+毎回コンテキストに全文読み込まれるため、肥大化させない。
+
+| 種類 | 置き場所 |
+|---|---|
+| コーディング規約・禁止事項 | **CLAUDE.md** |
+| アーキテクチャの制約（依存方向など） | **CLAUDE.md** |
+| ビルド・実行コマンド | **CLAUDE.md** |
+| 重要な落とし穴（bit(1)、エラー型など） | **CLAUDE.md** |
+| エンドポイント一覧 | `docs/api.md` |
+| アーキテクチャ詳細・ライブラリ一覧 | `docs/architecture.md` |
+| Lintルール一覧 | `docs/lint.md` |
+| タスク指示（step系） | **プロンプトで渡す** |
+
+---
+
+## ドキュメント参照先
+
+| 内容 | ファイル |
+|---|---|
+| APIエンドポイント一覧・レスポンス仕様 | [docs/api.md](docs/api.md) |
+| アーキテクチャ詳細・認証フロー・ライブラリ | [docs/architecture.md](docs/architecture.md) |
+| Lintルール一覧 | [docs/lint.md](docs/lint.md) |
+
+---
 
 ## Build & Run
 
 ```bash
-# Build all modules
-./gradlew build
+# ビルド
+go build ./...
+# または
+make build
 
-# Run the API server (requires env vars — see below)
-./gradlew :genesis-api:bootRun
+# 実行（APP_ENVで環境を指定する）
+APP_ENV=local go run ./cmd/main.go   # .env.local を読み込む
+APP_ENV=docker go run ./cmd/main.go  # .env.docker を読み込む
+# または
+APP_ENV=local make run
 
-# Build without tests
-./gradlew build -x test
+# Lintチェック（golangci-lint v2）
+golangci-lint run ./...
+# または
+make lint
 
-# Checkstyle (runs automatically on build)
-./gradlew checkstyleMain
+# go.mod整理
+go mod tidy
+# または
+make tidy
 ```
 
-### Required Environment Variables
+### 必要な環境変数
 
-| Variable | Example |
-|---|---|
-| DB_HOST | localhost |
-| DB_PORT | 43306 |
-| DB_SCHEMA | genesis_local |
-| DB_USER | genesis_app |
-| DB_PASSWORD | g3n3s1s_app |
-| REDIS_HOST | localhost |
-| REDIS_PORT | 46379 |
-| JWT_ISSUER1 | https://cognito-idp.ap-northeast-1.amazonaws.com/... |
-| JWT_AUDIENCE1/2/3 | Cognito App Client IDs |
-| JWT_ORIGIN1/2 | http://localhost, http://localhost:3000 |
+| 変数名 | 例 | 説明 |
+|---|---|---|
+| DB_HOST | localhost | MySQLホスト |
+| DB_PORT | 43306 | MySQLポート |
+| DB_SCHEMA | sandbox_local | DBスキーマ名 |
+| DB_USER | sandbox_app | DBユーザー |
+| DB_PASSWORD | s4ndb0x_app | DBパスワード |
+| REDIS_HOST | localhost | Redisホスト |
+| REDIS_PORT | 46379 | Redisポート |
+| JWT_ISSUER1 | https://cognito-idp.ap-northeast-1.amazonaws.com/... | CognitoのIssuer URL |
+| JWT_AUDIENCE1/2/3 | Cognito App Client ID | 許可するaudience（複数可） |
+| JWT_ORIGIN1/2 | http://localhost:3000 | CORS許可オリジン（未設定時はCORS無効） |
+| SESSION_TTL | 3600 | セッションTTL（秒）デフォルト3600 |
+| SERVER_PORT | 8080 | サーバーポート デフォルト8080 |
+| GIN_MODE | debug | Ginモード（debug / release / test） |
 
-### Local Infrastructure
+### 環境設定ファイル
+
+`APP_ENV` 環境変数で読み込むファイルを切り替える。ファイルはすべて `.gitignore` 対象。
+
+| APP_ENV | 読み込むファイル | 用途 |
+|---|---|---|
+| 未設定 | `.env` | production |
+| `local` | `.env.local` | ローカル起動 |
+| `docker` | `.env.docker` | Docker起動 |
+
+### ローカルインフラ起動
 
 ```bash
-# Start MySQL + Redis + Nginx via Docker
-docker compose up -d
+# MySQL + Redis を Docker で起動（./docs/base_srcのdocker-compose.ymlを使用）
+cd docs/base_src && docker compose up -d
 ```
 
-MySQL is exposed on port 43306, Redis on 46379.
+---
 
-## Architecture
+## アーキテクチャ
 
-This is a **Spring Boot 3 / Java 21 multi-module Gradle project** following DDD (Domain-Driven Design) with strict layer separation.
+DDD（ドメイン駆動設計）に基づくレイヤー構造。ディレクトリ構成は [docs/architecture.md](docs/architecture.md) 参照。
 
-### Module Dependency Flow
+### レイヤー依存関係
 
 ```
-genesis-api  →  genesis-application  →  genesis-domain
-     ↓                                        ↑
-genesis-security               genesis-infrastructure
-     ↓                                        ↑
-                  (runtimeOnly) ──────────────┘
+api → application → domain
+  ↓                    ↑
+infrastructure ─────────┘
+security → domain
 ```
 
-- **genesis-domain** — Domain models (value objects, aggregates), repository interfaces, and domain exceptions. No framework dependencies beyond Spring Security Core.
-- **genesis-application** — Use cases (`*UseCase.java`), commands, and DTOs. Depends only on `genesis-domain`. Each use case is a single `@Service` class with an `execute()` method.
-- **genesis-infrastructure** — Repository implementations (`*RepositoryImpl`), MyBatis mappers, Redis config. Uses `Collectors.toList()` (not `Stream.toList()`) to produce mutable `ArrayList` for Redis serialization compatibility.
-- **genesis-api** — REST controllers, request/response DTOs, `GlobalExceptionHandler`. Produces the executable JAR.
-- **genesis-security** — JWT filter (`JwtAuthFilter`), auth interceptor (`AuthInterceptor`), Spring Security config.
+---
 
-### Authentication Flow
+## 認証フロー
 
-1. All requests pass through `JwtAuthFilter` (OncePerRequestFilter) — validates RS256 JWT (AWS Cognito), then looks up `AuthUser` from Redis (which holds the `admin` flag), sets `SecurityContextHolder`, updates Redis session TTL.
-2. `AuthInterceptor` (HandlerInterceptor) checks `SecurityContextHolder` for `AuthUser`. Returns 401 if absent.
-3. Mark controller methods with `@PublicApi` to skip auth in the interceptor.
-4. `POST /api/v1/auth/login` — verifies JWT email matches BASE64-decoded request body email, fetches `User` from DB (including `admin` flag), then saves `AuthUser` with `admin` flag to Redis.
+詳細は [docs/architecture.md](docs/architecture.md) 参照。
 
-### AuthUser
+* JWT Middleware（`internal/api/middleware/jwt_middleware.go`）: Javaの `JwtAuthFilter` に相当
+* Auth Middleware（`internal/api/middleware/auth_middleware.go`）: Javaの `AuthInterceptor` に相当。`authUser` がなければ 401
 
-`AuthUser` (`genesis-domain/.../model/auth/AuthUser.java`) は JWT クレームと DB の admin フラグを保持する Record。
+---
 
-- フィールド: `sub`, `email`, `emailVerified`, `admin`
-- `isAdmin()` メソッドで管理者判定
-- `UserDetails` を implements しているが、`getUsername()` / `getPassword()` / `isEnabled()` / `getAuthorities()` には `@JsonIgnore` を付与し、Redis の JSON にはレコードコンポーネントのみ保存される
-- `JwtProvider.parse()` では JWT から admin 情報を得られないため `admin=false` で生成し、`JwtAuthFilter` で Redis から admin 付き `AuthUser` を上書き取得する
+## 実装規約
 
-### パスパラメータの userId
+### エラー型
+`internal/domain/apperror` のカスタムエラー型を使用。
 
-パスに `{userId}` を含むエンドポイントでは、userId は Base64 エンコード済みで渡される。`UserId.decodeUserIdValue()` でデコードすること。
+| エラー型 | HTTPステータス |
+|---|---|
+| AuthenticationError | 401 |
+| ForbiddenError | 403 |
+| NotFoundError | 404 |
+| DuplicateError / InsertError / UpdateError | 400 |
 
-```java
-String userId = UserId.decodeUserIdValue(userIdBase64);
+### Base64デコード
+`encoding/base64.StdEncoding` を使用（JavaのBase64.getDecoder()に相当）。
+パディングなしの場合は `RawStdEncoding` にフォールバック。
+
+### MySQL `bit(1)` カラム
+Goのdatabase/sqlドライバは `bit(1)` を `[]byte` で返す。
+SQLクエリで `(col+0) AS col` にキャストし、Go側では `uint8` でスキャンして `!= 0` でbool変換する。
+
+### 日時フォーマット
+`UserDto` の日時フィールドはJavaに合わせて `"yyyy-MM-dd HH:mm:ss"` 形式。
+`internal/application/dto/user_dto.go` の `DateTime` 型でカスタムMarshal。
+
+### Lintルール（`.golangci.yml`）
+golangci-lint v2を使用。リンター一覧は [docs/lint.md](docs/lint.md) 参照。
+
+#### importグループの順序（goimports）
+```go
+import (
+    // 1. 標準ライブラリ
+    "context"
+    "fmt"
+
+    // 2. サードパーティ
+    "github.com/gin-gonic/gin"
+
+    // 3. ローカル（sandbox-api-gin/...）
+    "sandbox-api-gin/internal/..."
+)
 ```
 
-また、userId・email はリクエストボディには含めず、JWT の `AuthUser` から取得する（`authUser.sub()`, `authUser.email()`）。
+### DB操作の規約
 
-### 管理者専用 API の実装パターン
+**sqlxの `GetContext` / `SelectContext` を使って構造体に直接スキャンする**。
 
-```java
-@GetMapping
-public ResponseEntity<ApiResponse> someAdminApi(@AuthenticationPrincipal AuthUser authUser) {
-    if (!authUser.isAdmin()) {
-        throw new ForbiddenException("管理者用APIです");
+```go
+// 1件取得
+var rec sandboxUserRecord
+err := db.GetContext(ctx, &rec, query, args...)
+if err == sql.ErrNoRows { ... }
+
+// 複数件取得
+var recs []sandboxUserRecord
+err := db.SelectContext(ctx, &recs, query, args...)
+```
+
+**DB操作は必ず `Context` を渡す**（`noctx` リンターで検出される）。
+
+```go
+// NG
+row := db.QueryRow(query, args...)
+
+// OK
+row := db.QueryRowContext(context.Background(), query, args...)
+```
+
+**INSERT / UPDATE は `ExecContext` を使い、`RowsAffected` で件数を検証する**。INSERT後は `LastInsertId()` でIDを取得してドメインモデルにセットする。
+
+```go
+result, err := db.ExecContext(ctx, query, args...)
+if err != nil { return err }
+rows, err := result.RowsAffected()
+if err != nil { return err }
+if rows != 1 { return apperror.NewInsertError("...") }
+// INSERT のみ: 自動採番IDをドメインモデルに反映
+id, err := result.LastInsertId()
+if err != nil { return err }
+user.ID = id
+```
+
+**リソースの Close は `defer func(){}()` でエラーハンドリングする**（`errcheck` リンターで検出される）。
+
+```go
+// NG
+defer db.Close()
+
+// OK
+defer func() {
+    if err := db.Close(); err != nil {
+        slog.Error("切断エラー", "error", err)
     }
-    // useCase 実行
+}()
+```
+
+### main.goのパターン
+`run()` 関数にロジックを分離し、`defer` が確実に実行されるようにしている。
+`log.Fatal` は `main()` からのみ呼び出す（`gocritic: exitAfterDefer` で検出される）。
+
+```go
+func main() {
+    if err := run(); err != nil {
+        log.Fatal(err)
+    }
+}
+
+func run() error {
+    // deferを使って安全にリソース解放
+    // エラーはreturnで伝播させる
 }
 ```
 
-- `ForbiddenException` (`genesis-domain/.../exception/ForbiddenException.java`) → HTTP 403 FORBIDDEN
+### CORS設定
 
-### Redis Usage
+`JWT_ORIGIN1` / `JWT_ORIGIN2` が設定されている場合のみ CORS ミドルウェアを有効化。
+未設定の場合は CORS なし（同一オリジンのみ許可）。
 
-- Sessions are stored and managed via `SessionRepository` (domain interface) / `RedisSessionRepositoryImpl`.
-- Master data (FX symbols, countries) is cached in Redis via `MasterCacheRepository` with a cache-aside pattern: read from Redis → on miss, read from DB and write back to Redis. Cache keys are built from `Symbol.class.getSimpleName() + symbolType`.
+```go
+if len(cfg.JWTOrigins) > 0 {
+    engine.Use(cors.New(cors.Config{
+        AllowOrigins:     cfg.JWTOrigins,
+        AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"},
+        AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
+        AllowCredentials: true,
+        MaxAge:           12 * time.Hour,
+    }))
+}
+```
 
-### API Conventions
+### Graceful Shutdown
 
-- Base path: `/api` (context-path), versioned as `/v1/...`
-- All responses wrap data in `ApiResponse` / `ApiSearchResponse` with a `ReturnCode` (Ok, Warn, etc.).
-- Domain exceptions are mapped to HTTP status codes in `GlobalExceptionHandler`:
-  - `AuthenticationException` → 401 UNAUTHORIZED
-  - `ForbiddenException` → 403 FORBIDDEN
-  - `NotFoundException` → 404 NOT FOUND
-  - `DuplicateException`, `InsertException`, `UpdateException` → 400 BAD REQUEST
-- Checkstyle (`checkstyle.xml`) is enforced on every build.
+SIGINT / SIGTERM を受け取ったら10秒のタイムアウトで安全に終了。
 
-### Package Root
+```go
+srv := &http.Server{Addr: ":" + cfg.ServerPort, Handler: engine}
+go func() {
+    srv.ListenAndServe()
+}()
+signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+<-quit
 
-`jp.co.next_evolution.genesis`
+shutdownCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+defer cancel()
+srv.Shutdown(shutdownCtx)
+```
 
-### Stream / Collection Convention
+### コンテキスト伝播
 
-- In `genesis-application`: use `Stream.toList()` (immutable, fine for non-Redis use).
-- In `genesis-infrastructure`: use `.collect(Collectors.toList())` (returns mutable `ArrayList`, required for Redis serialization).
+HTTP リクエストのコンテキスト（タイムアウト・キャンセル）をすべての層に伝播させる。
 
-### DateTime Format Convention
+```
+Controller: ctx := c.Request.Context()
+              ↓
+UseCase:    Execute(ctx context.Context, cmd)
+              ↓
+Repository: Save(ctx context.Context, ...) / FindBySub(ctx, ...) etc.
+              ↓
+DB / Redis: db.GetContext(ctx, ...) / redisClient.Set(ctx, ...)
+```
 
-- API の `LocalDateTime` フィールドは RFC 3339 形式 `yyyy-MM-dd'T'HH:mm:ssXXX`（例: `2026-01-02T11:22:33+09:00`）で統一する。
-- シリアライズ/デシリアライズは `JacksonConfig`（`genesis-api/config/JacksonConfig.java`）でグローバル設定済み。JST固定（`ZoneOffset.ofHours(9)`）で `LocalDateTime ↔ OffsetDateTime` 変換を行う。
-- Request / Response DTOに `@JsonFormat` / `@JsonSerialize` / `@JsonDeserialize` を個別付与しない（グローバル設定が適用される）。
-- `LocalDate` 型は対象外。既存の `@JsonFormat(pattern = "yyyy-MM-dd")` をそのまま使用する。
+### リクエストバリデーション
+
+Gin の `binding` タグで入力バリデーションを行う。`ShouldBindJSON` でエラーが返った場合は 400 を返す。
+
+```go
+type UserRegistrationRequest struct {
+    NickName string `json:"nickName" binding:"required,max=50"`
+}
+
+var req UserRegistrationRequest
+if err := c.ShouldBindJSON(&req); err != nil {
+    c.JSON(http.StatusBadRequest, response.ErrorResponse{...})
+    return
+}
+```
+
+### パスパラメータの userId デコード
+
+パスに `:userId` を含むエンドポイントでは Base64 エンコード済みで渡される。
+`decodeBase64UserID()` でデコードし、`authUser.Sub` と一致しなければ `ForbiddenError`。
+
+Javaの `UserId.decodeUserIdValue()` に相当。`StdEncoding` → `RawStdEncoding` フォールバックは Base64 デコードと同じパターン。
+
+### パッケージ命名規約
+Goのパッケージ名は短い識別子。ディレクトリ名と一致させる。
+サードパーティと競合する場合はprefixを付ける。
+
+```
+internal/infrastructure/infraredis/  → package infraredis  （"redis"だとgo-redisと競合）
+internal/infrastructure/infradb/     → package infradb
+```
