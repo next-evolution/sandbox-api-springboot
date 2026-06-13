@@ -4,6 +4,9 @@ docs/*
 !docs/*.md
 !docs/index.html
 
+# env
+.env.compose
+
 # local: 
 local/*
 !local/work/backup_sandbox.sh
