@@ -60,36 +60,51 @@ sandbox-api  ──→  sandbox-application  ──→  sandbox-domain
 ### 1. ローカルインフラ起動
 
 ```bash
+# テンプレートをコピーして実際の値を設定（初回のみ）
+cp .env.compose.example .env.compose
+
 # MySQL（43306）+ Redis（46379）を Docker で起動
-docker compose up -d
+docker compose --env-file .env.compose up -d
 ```
 
-プロジェクトルートに `.env` ファイルを作成：
+`.env.compose` の主な設定項目：
 
-```dotenv
-MYSQL_ROOT_PASSWORD=root_password
-DB_SCHEMA=sandbox_local
-DB_PORT=43306
-REDIS_PORT=46379
-```
+| 変数名 | 説明 |
+|---|---|
+| `MYSQL_ROOT_PASSWORD` | MySQL root パスワード |
+| `DB_SCHEMA` | データベース名 |
+| `DB_USER` | API 接続ユーザー名 |
+| `DB_PASSWORD` | API 接続ユーザーパスワード |
+| `DB_PORT` | MySQL ホスト側ポート（デフォルト: 43306） |
+| `REDIS_PORT` | Redis ホスト側ポート（デフォルト: 46379） |
+| `ADMIN_UUID` | 初期管理者の Cognito sub |
+| `ADMIN_EMAIL` | 初期管理者のメールアドレス |
+
+> `initdb.d/` スクリプトが初回起動時に DB 作成・アプリユーザー作成・管理者ユーザー INSERT を自動実行します。  
+> 再初期化する場合は `docker compose down -v` でボリュームを削除してから再起動してください。
 
 ### 2. アプリケーション環境変数
 
-`bootRun` 実行前にシェルまたは IDE に設定：
+```bash
+# テンプレートをコピーして実際の値を設定（初回のみ）
+cp .env.bootRun.example .env.bootRun
+```
+
+`build.gradle` が `.env.bootRun` を自動読み込みするため、`source` や `export` は不要です。
 
 | 変数名 | 説明 | 例 |
 |---|---|---|
 | `DB_HOST` | MySQL ホスト | `localhost` |
 | `DB_PORT` | MySQL ポート | `43306` |
-| `DB_SCHEMA` | データベース名 | `sandbox_local` |
+| `DB_SCHEMA` | データベース名 | `sandbox` |
 | `DB_USER` | DB ユーザー | `sandbox_app` |
-| `DB_PASSWORD` | DB パスワード | `s4ndb0x_app` |
+| `DB_PASSWORD` | DB パスワード | — |
 | `REDIS_HOST` | Redis ホスト | `localhost` |
 | `REDIS_PORT` | Redis ポート | `46379` |
 | `JWT_ISSUER1` | Cognito URL | `https://cognito-idp.ap-northeast-1.amazonaws.com/...` |
 | `JWT_AUDIENCE1/2/3` | Cognito App Client ID | — |
 | `JWT_ORIGIN1/2` | 許可オリジン | `http://localhost` |
-| `BUCKET_NAME` | S3 バケット名 | `next-evolution` |
+| `BUCKET_NAME` | S3 バケット名（またはローカルパス） | `../local/storage` |
 | `APP_NAME` | アプリ名（S3 パス用） | `sandbox` |
 
 ### 3. ビルド & 起動
