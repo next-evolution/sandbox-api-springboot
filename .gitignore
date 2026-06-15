@@ -6,6 +6,7 @@ docs/*
 
 # env
 .env.compose
+.env.bootRun
 
 # local: 
 local/*

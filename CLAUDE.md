@@ -44,8 +44,9 @@ Spring Boot 3 / Java 21 で構築された RestAPI。
 # ビルド
 ./gradlew build
 
-# 実行（環境変数が必要）
-./gradlew :sandbox-api:bootRun
+# 実行（.env.bootRun から環境変数を自動読み込み）
+cp .env.bootRun.example .env.bootRun   # 初回のみ・値を実際の環境に合わせて編集
+./gradlew sandbox-api:bootRun
 
 # テスト省略ビルド
 ./gradlew build -x test
@@ -57,20 +58,14 @@ Spring Boot 3 / Java 21 で構築された RestAPI。
 docker compose --env-file .env.compose up -d
 ```
 
-### 必要な環境変数
+### 環境変数ファイル
 
-| 変数名 | 例 |
+| ファイル | 用途 |
 |---|---|
-| DB_HOST | localhost |
-| DB_PORT | 43306 |
-| DB_SCHEMA | sandbox_local |
-| DB_USER | sandbox_app |
-| DB_PASSWORD | s4ndb0x_app |
-| REDIS_HOST | localhost |
-| REDIS_PORT | 46379 |
-| JWT_ISSUER1 | https://cognito-idp.ap-northeast-1.amazonaws.com/... |
-| JWT_AUDIENCE1/2/3 | Cognito App Client ID |
-| JWT_ORIGIN1/2 | http://localhost, http://localhost:3000 |
+| `.env.bootRun.example` | テンプレート（git 管理対象） |
+| `.env.bootRun` | 実際の値（git 除外済み） |
+
+`build.gradle` の `bootRun` タスクが `.env.bootRun` を自動読み込みするため、別途 `export` や `source` は不要。
 
 ### ローカルインフラ起動
 
