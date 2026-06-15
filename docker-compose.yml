@@ -18,8 +18,8 @@ services:
     ports:
       - "${DB_PORT}:3306"
     volumes:
-      - ./mysql/50-server.cnf:/etc/my.cnf.d/50-server.cnf
-      - ./mysql/initdb.d/:/docker-entrypoint-initdb.d
+      - ./docker/mysql/50-server.cnf:/etc/my.cnf.d/50-server.cnf
+      - ./docker/mysql/initdb.d/:/docker-entrypoint-initdb.d
       - ./local/work:/work
       - mysql:/var/lib/mysql
     working_dir: /work

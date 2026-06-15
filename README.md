@@ -38,6 +38,15 @@ sandbox-api ──→ sandbox-application ──→ sandbox-domain ←──┐
 
 詳細は [docs/architecture.md](./docs/architecture.md) を参照。
 
+### ディレクトリ構成（非モジュール）
+
+| ディレクトリ | 用途 |
+|---|---|
+| `docker/mysql/` | MySQL コンテナ設定（`50-server.cnf`, `initdb.d/`） |
+| `local/work/` | Docker コンテナ共通の `/work` ボリュームマウント |
+| `tools/jmeter/` | JMeter による手動 API テスト（シナリオ・テストデータ） |
+| `docs/` | API 仕様・アーキテクチャ・開発 Tips |
+
 ---
 
 ## 主な機能
