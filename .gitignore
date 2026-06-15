@@ -8,9 +8,20 @@ docs/*
 .env.compose
 .env.bootRun
 
-# local: 
+# local: Docker ボリュームマウント（backup shell のみ管理対象）
 local/*
 !local/work/backup_sandbox.sh
+
+# tools/jmeter: 生成物・実行ログは除外
+tools/jmeter/response/
+tools/jmeter/result/
+tools/jmeter/tmp/
+tools/jmeter/jmeter.log
+
+# tools/jmeter/data: セキュリティ情報を含む CSV は除外（*.csv.example のみ管理対象）
+tools/jmeter/data/admin_user.csv
+tools/jmeter/data/settings.csv
+tools/jmeter/data/user.csv
 
 /.idea/**
 /.run/**
