@@ -62,8 +62,10 @@ docker compose --env-file .env.compose up -d
 
 | ファイル | 用途 |
 |---|---|
-| `.env.bootRun.example` | テンプレート（git 管理対象） |
-| `.env.bootRun` | 実際の値（git 除外済み） |
+| `.env.bootRun.example` | bootRun テンプレート（git 管理対象） |
+| `.env.bootRun` | bootRun 実際の値（git 除外済み） |
+| `.env.compose.example` | docker compose テンプレート（git 管理対象） |
+| `.env.compose` | docker compose 実際の値（git 除外済み） |
 
 `build.gradle` の `bootRun` タスクが `.env.bootRun` を自動読み込みするため、別途 `export` や `source` は不要。
 
@@ -71,7 +73,8 @@ docker compose --env-file .env.compose up -d
 
 ```bash
 # MySQL（43306）+ Redis（46379）を Docker で起動
-docker compose up -d
+cp .env.compose.example .env.compose  # 初回のみ・値を実際の環境に合わせて編集
+docker compose --env-file .env.compose up -d
 ```
 
 ---
