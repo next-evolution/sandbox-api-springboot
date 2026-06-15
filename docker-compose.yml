@@ -8,6 +8,10 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_DATABASE: ${DB_SCHEMA}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      ADMIN_UUID: ${ADMIN_UUID}
+      ADMIN_EMAIL: ${ADMIN_EMAIL}
       TZ: Asia/Tokyo
       LANG: C.UTF-8
       LC_ALL: C.UTF-8
