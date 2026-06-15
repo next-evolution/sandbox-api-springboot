@@ -128,7 +128,8 @@ public class ImportCsvBarDataUseCase {
     int insertCount = barDataRepository.insertFromLoad(symbol, barType);
     int insertSmaCount = barDataRepository.insertFromLoadSma(symbol, barType);
     int insertRsiCount = barDataRepository.insertFromLoadRsi(symbol, barType);
-    log.info("インサート完了: symbol={}, bar={}, sma={}, rsi={}", symbol, insertCount, insertSmaCount, insertRsiCount);
+    log.info("インサート完了: symbol={}, bar={}, sma={}, rsi={}",
+        symbol, insertCount, insertSmaCount, insertRsiCount);
 
     // 7. 差分更新
     int differenceCount = processDiffUpdate(symbol, barType);
@@ -168,7 +169,7 @@ public class ImportCsvBarDataUseCase {
 
   private int loadCsv(Path csvFile, String symbol, BarType barType) {
 
-    //CsvSchema schema = CsvSchema.emptySchema().withHeader();
+    // CsvSchema schema = CsvSchema.emptySchema().withHeader();
     CsvSchema schema = CSV_MAPPER.schemaFor(BarCsvRow.class).withHeader();
 
     List<BarLoadData> barBuffer = new ArrayList<>();
@@ -252,7 +253,6 @@ public class ImportCsvBarDataUseCase {
     return false;
 
   }
-
 
   private BarLoadData toBarLoadData(String symbol, LocalDateTime barDateTime, BarCsvRow row) {
 
