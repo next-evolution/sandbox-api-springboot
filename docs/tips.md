@@ -1,0 +1,63 @@
+# Tips
+
+## VS Code 設定（`.vscode/settings.json`）
+
+このプロジェクトには VS Code 向けの推奨設定が含まれています。
+
+```json
+{
+  "java.compile.nullAnalysis.mode": "disabled",
+  "java.project.outputPath": "build",
+  "java.import.gradle.enabled": true,
+  "java.import.gradle.wrapper.enabled": true,
+  "java.configuration.updateBuildConfiguration": "automatic",
+  "java.debug.settings.hotCodeReplace": "auto",
+  "java.inlayHints.parameterNames.enabled": "literals",
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.organizeImports": "explicit"
+  },
+  "files.exclude": {
+    "**/build": true,
+    "**/.gradle": true,
+    "**/bin": true
+  },
+  "search.exclude": {
+    "**/build": true,
+    "**/.gradle": true,
+    "**/bin": true
+  },
+  "[java]": {
+    "editor.tabSize": 4
+  }
+}
+```
+
+### 各設定の説明
+
+| キー | 値 | 説明 |
+|---|---|---|
+| `java.compile.nullAnalysis.mode` | `"disabled"` | null 解析を無効化。誤検知による警告ノイズを抑制する |
+| `java.project.outputPath` | `"build"` | コンパイル出力先を Gradle のビルドディレクトリ（`build/`）に統一する |
+| `java.import.gradle.enabled` | `true` | Gradle プロジェクトのインポートを有効化する |
+| `java.import.gradle.wrapper.enabled` | `true` | Gradle Wrapper（`gradlew`）経由でのビルドを使用する |
+| `java.configuration.updateBuildConfiguration` | `"automatic"` | `build.gradle` 変更時にプロジェクトを自動再インポートする |
+| `java.debug.settings.hotCodeReplace` | `"auto"` | デバッグ中にコードを変更・保存すると再起動なしでクラスを差し替える |
+| `java.inlayHints.parameterNames.enabled` | `"literals"` | メソッド呼び出し時にリテラル引数の引数名をインライン表示する |
+| `editor.formatOnSave` | `true` | ファイル保存時に自動フォーマットを実行する |
+| `editor.codeActionsOnSave` | `organizeImports` | 保存時に未使用 import の削除と順序整理を行う |
+| `files.exclude` | `build`, `.gradle`, `bin` | エクスプローラーからビルド成果物を非表示にする |
+| `search.exclude` | `build`, `.gradle`, `bin` | 全文検索からビルド成果物を除外する |
+| `[java] editor.tabSize` | `4` | Java ファイルのタブサイズを 4 に統一する |
+
+### `bin` フォルダについて
+
+VS Code の Java 言語サーバーは、Gradle マルチモジュール構成において各モジュール配下に `bin/` フォルダを生成する。
+`files.exclude` はあくまでエクスプローラーと検索から**非表示にする**設定であり、フォルダの生成自体は止まらない。
+
+| 対策 | 設定箇所 | 効果 |
+|---|---|---|
+| git 追跡から除外 | `.gitignore`（`**/bin/` 記載済み） | リポジトリには含まれない |
+| VS Code から非表示 | `files.exclude` / `search.exclude` | エクスプローラー・検索に表示されない |
+
+`java.project.outputPath` をモジュールごとに指定する方法もあるが、言語サーバーが独自に `bin` を使うため完全な抑制は難しい。上記 2 つの対策の組み合わせが現実的な運用となる。
