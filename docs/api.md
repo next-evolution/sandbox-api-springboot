@@ -9,17 +9,42 @@
 
 ### レスポンス形式
 
-全エンドポイント共通で `ApiResponse` / `ApiSearchResponse` でラップされる。
+多くのエンドポイントで `ApiResponse` / `ApiSearchResponse` でラップされる（例外は下表参照）。
 
 ```json
 // ApiResponse（単件・操作系）
-{ "returnCode": "Ok", "message": null, "user": { ... } }
+{ "returnCode": 0, "message": null, "user": { ... } }
 
 // ApiSearchResponse（一覧検索系）
-{ "returnCode": "Ok", "totalCount": 100, "searchCount": 100, "totalPage": 5, "list": [ ... ] }
+{ "returnCode": 0, "totalCount": 100, "searchCount": 100, "totalPage": 5, "list": [ ... ] }
 ```
 
-`ReturnCode`: `Ok`（正常）/ `Warn`（警告）
+`ReturnCode` は整数値: `Ok`=0（正常）/ `Warn`=1（警告）/ `Error`=2（エラー）/ `Fatal`=2147483647
+
+**`ApiResponse` でラップされないエンドポイント:**
+
+| エンドポイント | 戻り型 |
+|---|---|
+| `GET /v1/fx/master-list/*` | `List<KeyValue>` |
+| `GET /v1/fx/symbol/currency-pair-list` | `List<SymbolDto>` |
+| `GET /v1/fx/symbol/currency-index-list` | `List<SymbolDto>` |
+| `GET /v1/fx/symbol/{symbol}` | `SymbolDto`（直接） |
+| `POST /v1/fx/symbol` | ボディなし（200 OK） |
+| `PUT /v1/fx/symbol/{symbol}` | ボディなし（200 OK） |
+| `GET /v1/fx/country/{code}` | `CountryDto`（直接） |
+| `POST /v1/fx/country` | ボディなし（200 OK） |
+| `PUT /v1/fx/country/{code}` | ボディなし（200 OK） |
+| `GET /v1/fx/summer-time/{targetYear}` | `SummerTimeDto`（直接） |
+| `POST /v1/fx/summer-time` | ボディなし（200 OK） |
+| `PUT /v1/fx/summer-time/{targetYear}` | ボディなし（200 OK） |
+| `GET /v1/fx/economic-indicator/{countryCode}/{id}` | `EconomicIndicatorDto`（直接） |
+| `POST /v1/fx/economic-indicator` | ボディなし（200 OK） |
+| `PUT /v1/fx/economic-indicator/{countryCode}/{id}` | ボディなし（200 OK） |
+| `GET /v1/fx/bar-data/{symbolType}/{barType}` | `List<BarDataImportResult>` |
+| `GET /v1/fx/economic-indicator-data/{economicIndicatorId}/{publication}` | `EconomicIndicatorDataDto`（直接） |
+| `POST /v1/fx/economic-indicator-data` | ボディなし（200 OK） |
+| `PUT /v1/fx/economic-indicator-data/{economicIndicatorId}/{publication}` | ボディなし（200 OK） |
+| `POST /v1/fx/economic-indicator-data/import-text` | `List<FileImportResult>` |
 
 ### 認証
 

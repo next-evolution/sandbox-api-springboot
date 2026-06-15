@@ -12,7 +12,7 @@ Spring Boot 3 / Java 21 マルチモジュール Gradle プロジェクト。DDD
 | `sandbox-application` | ユースケース（`*UseCase.java`）、コマンド、DTO。`sandbox-domain` のみに依存。各ユースケースは `@Service` クラスで `execute()` メソッドを持つ。 |
 | `sandbox-infrastructure` | リポジトリ実装（`*RepositoryImpl`）、MyBatis マッパー、Redis 設定。 |
 | `sandbox-api` | REST コントローラー、リクエスト/レスポンス DTO、`GlobalExceptionHandler`。実行可能 JAR を生成。 |
-| `sandbox-security` | JWT フィルター（`JwtAuthFilter`）、認証インターセプター（`AuthInterceptor`）、Spring Security 設定。 |
+| `sandbox-security` | JWT フィルター（`JwtAuthFilter`）、認証インターセプター（`AuthInterceptor`）、Spring Security 設定。`sandbox-domain` に依存。 |
 
 ---
 
@@ -20,8 +20,8 @@ Spring Boot 3 / Java 21 マルチモジュール Gradle プロジェクト。DDD
 
 1. 全リクエストが `JwtAuthFilter`（OncePerRequestFilter）を通過
    - RS256 JWT（AWS Cognito）を検証
-   - Redis から `AuthUser`（admin フラグ含む）を取得
-   - `SecurityContextHolder` にセット
+   - Redis から `AuthUser`（admin フラグ含む）を取得。セッション未存在の場合は JWT のみの `AuthUser`（`admin=false`）にフォールバック
+   - `SecurityContextHolder` にセット（セッションの有無によらず JWT が有効であればセット）
    - Redis セッション TTL を更新
 2. `AuthInterceptor`（HandlerInterceptor）が `SecurityContextHolder` の `AuthUser` を確認。なければ 401
 3. コントローラーメソッドに `@PublicApi` を付与するとインターセプターの認証チェックをスキップ

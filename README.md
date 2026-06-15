@@ -29,10 +29,11 @@ Spring Boot 3 / Java 21 で構築し、**DDD（ドメイン駆動設計）** に
 ### 依存関係
 
 ```
-sandbox-api  ──→  sandbox-application  ──→  sandbox-domain
-     │                                            ↑
-     └──→  sandbox-security         sandbox-infrastructure
-                                    (runtimeOnly) ──────┘
+sandbox-api ──→ sandbox-application ──→ sandbox-domain ←──┐
+     │                                                     │
+     ├──→ sandbox-security ─────────────────────────────→──┤
+     │                                                     │
+     └──(runtimeOnly)──→ sandbox-infrastructure ─────────→─┘
 ```
 
 詳細は [docs/architecture.md](./docs/architecture.md) を参照。
@@ -125,7 +126,16 @@ cp .env.bootRun.example .env.bootRun
 
 ---
 
+## Claude Code カスタムコマンド
+
+| コマンド | 用途 |
+|---|---|
+| `/docs-check` | `docs/*.md` と実装の乖離チェック。コミット前などに手動実行する |
+
+---
+
 ## API Documentation
 
 - OpenAPI Spec: [api-docs.yaml](./docs/api-docs.yaml)
 - API Docs: https://next-evolution.github.io/sandbox-api-springboot/
+- 開発 Tips（VS Code 設定など）: [docs/tips.md](./docs/tips.md)
