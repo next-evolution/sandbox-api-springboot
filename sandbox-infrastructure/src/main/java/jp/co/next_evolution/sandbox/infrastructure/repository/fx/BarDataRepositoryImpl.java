@@ -13,7 +13,6 @@ import jp.co.next_evolution.sandbox.domain.model.fx.SymbolType;
 import jp.co.next_evolution.sandbox.domain.repository.fx.BarDataRepository;
 import jp.co.next_evolution.sandbox.infrastructure.db.entity.FxBarCsvImportCheckDto;
 import jp.co.next_evolution.sandbox.infrastructure.db.entity.FxBarData;
-import jp.co.next_evolution.sandbox.infrastructure.db.entity.FxBarDataStatus;
 import jp.co.next_evolution.sandbox.infrastructure.db.entity.FxBarLoad;
 import jp.co.next_evolution.sandbox.infrastructure.db.entity.FxBarLoadRsi;
 import jp.co.next_evolution.sandbox.infrastructure.db.entity.FxBarLoadSma;

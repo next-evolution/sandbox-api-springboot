@@ -9,7 +9,6 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import java.time.LocalDateTime;
 import jp.co.next_evolution.sandbox.api.dto.request.ApiSearchRequest;
-import jp.co.next_evolution.sandbox.domain.model.fx.BarType;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 

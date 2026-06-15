@@ -12,7 +12,6 @@ import jp.co.next_evolution.sandbox.application.dto.user.UserDto;
 import jp.co.next_evolution.sandbox.application.usecase.user.LoginUseCase;
 import jp.co.next_evolution.sandbox.application.usecase.user.LogoutUseCase;
 import jp.co.next_evolution.sandbox.domain.model.auth.AuthUser;
-import jp.co.next_evolution.sandbox.security.annotation.PublicApi;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;

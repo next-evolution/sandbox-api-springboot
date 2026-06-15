@@ -47,7 +47,7 @@ public class AuthInterceptor implements HandlerInterceptor {
 
     // JwtAuthFilter がセットした AuthUser を取り出す
     var authentication = SecurityContextHolder.getContext().getAuthentication();
-    if (authentication == null || !(authentication.getPrincipal() instanceof AuthUser authUser)) {
+    if (authentication == null || !(authentication.getPrincipal() instanceof AuthUser)) {
       log.error("{} -> {}", request.getServletPath(), "Unauthorized");
       response.sendError(HttpStatus.UNAUTHORIZED.value(), "Unauthorized");
       return false;

@@ -19,19 +19,27 @@ public record AuthUser(
     return admin;
   }
 
-  @JsonIgnore @Override public String getUsername() {
+  @JsonIgnore
+  @Override
+  public String getUsername() {
     return sub;
   }
 
-  @JsonIgnore @Override public String getPassword() {
+  @JsonIgnore
+  @Override
+  public String getPassword() {
     return "";
   }
 
-  @JsonIgnore @Override public boolean isEnabled() {
+  @JsonIgnore
+  @Override
+  public boolean isEnabled() {
     return emailVerified;
   }
 
-  @JsonIgnore @Override public Collection<? extends GrantedAuthority> getAuthorities() {
+  @JsonIgnore
+  @Override
+  public Collection<? extends GrantedAuthority> getAuthorities() {
     return List.of();
   }
 
