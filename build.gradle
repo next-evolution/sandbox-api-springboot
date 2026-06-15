@@ -85,6 +85,20 @@ project(":sandbox-api") {
         setArchiveFileName("sandbox-api-${version}.jar")
     }
 
+    bootRun {
+        def envFile = rootProject.file(".env.bootRun")
+        if (envFile.exists()) {
+            envFile.readLines().each { line ->
+                if (line && !line.startsWith('#')) {
+                    def idx = line.indexOf('=')
+                    if (idx > 0) {
+                        environment line[0..<idx].trim(), line[(idx + 1)..-1].trim()
+                    }
+                }
+            }
+        }
+    }
+
     dependencies {
         implementation project(":sandbox-application")
         implementation project(":sandbox-security")
