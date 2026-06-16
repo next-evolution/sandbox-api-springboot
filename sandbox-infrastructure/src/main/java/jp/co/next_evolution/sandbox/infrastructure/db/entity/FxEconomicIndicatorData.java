@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class FxEconomicIndicatorData {
 
-  private Long id;
+  private String code;
   private String countryCode;
   private String name;
   private String importance;

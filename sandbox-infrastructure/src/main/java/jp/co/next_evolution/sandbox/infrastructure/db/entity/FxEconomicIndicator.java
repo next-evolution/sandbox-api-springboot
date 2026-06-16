@@ -13,7 +13,7 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 public class FxEconomicIndicator extends MasterColumns {
 
-  private Long id;
+  private String code;
   private String countryCode;
   private String name;
   private String importance;

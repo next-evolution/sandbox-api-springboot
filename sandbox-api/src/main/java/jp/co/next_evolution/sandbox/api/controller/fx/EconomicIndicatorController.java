@@ -52,12 +52,12 @@ public class EconomicIndicatorController {
 
   }
 
-  @GetMapping("/{countryCode}/{id}")
+  @GetMapping("/{countryCode}/{code}")
   public ResponseEntity<EconomicIndicatorDto> get(
       @PathVariable String countryCode,
-      @PathVariable Long id) {
+      @PathVariable String code) {
 
-    return ResponseEntity.ok(getEconomicIndicatorUseCase.execute(countryCode, id));
+    return ResponseEntity.ok(getEconomicIndicatorUseCase.execute(countryCode, code));
 
   }
 
@@ -70,13 +70,13 @@ public class EconomicIndicatorController {
 
   }
 
-  @PutMapping("/{countryCode}/{id}")
+  @PutMapping("/{countryCode}/{code}")
   public ResponseEntity<Void> update(
       @PathVariable String countryCode,
-      @PathVariable Long id,
+      @PathVariable String code,
       @RequestBody @Validated EconomicIndicatorRequest req) {
 
-    updateEconomicIndicatorUseCase.execute(countryCode, id, req.getIndicator());
+    updateEconomicIndicatorUseCase.execute(countryCode, code, req.getIndicator());
     return ResponseEntity.ok().build();
 
   }

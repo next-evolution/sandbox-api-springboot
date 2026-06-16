@@ -23,8 +23,8 @@ public class EconomicIndicatorDataSearchRequest extends ApiSearchRequest {
   @Schema(requiredMode = NOT_REQUIRED, description = "重要度")
   private String importance;
 
-  @Schema(requiredMode = NOT_REQUIRED, description = "経済指標ID")
-  private long id;
+  @Schema(requiredMode = NOT_REQUIRED, description = "経済指標コード")
+  private String code;
 
   @Schema(requiredMode = NOT_REQUIRED, description = "昇順ソート")
   private boolean sortAsc;

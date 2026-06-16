@@ -5,8 +5,8 @@
 
   <select id="getList" resultType="jp.co.next_evolution.sandbox.infrastructure.db.entity.KeyValueRecord">
     SELECT
-       CAST(id AS CHAR) AS `key`
-      ,name             AS `value`
+       code AS `key`
+      ,name AS `value`
     FROM fx_economic_indicator
     WHERE
       deleted = 0
@@ -19,7 +19,7 @@
   <select id="getEconomicIndicatorList"
     resultType="jp.co.next_evolution.sandbox.infrastructure.db.entity.FxEconomicIndicator">
     SELECT
-       t.id            AS id
+       t.code          AS code
       ,t.country_code  AS countryCode
       ,t.name          AS name
       ,t.importance    AS importance
@@ -35,7 +35,7 @@
   </select>
 
   <select id="count" resultType="Integer">
-    SELECT COUNT(id)
+    SELECT COUNT(code)
     FROM fx_economic_indicator
     WHERE deleted = 0
     <if test="importance != null and importance != ''">
@@ -52,7 +52,7 @@
   <select id="search"
     resultType="jp.co.next_evolution.sandbox.infrastructure.db.entity.FxEconomicIndicator">
     SELECT
-       t.id            AS id
+       t.code          AS code
       ,t.country_code  AS countryCode
       ,t.name          AS name
       ,t.importance    AS importance
@@ -73,7 +73,7 @@
     <if test="name != null and name != ''">
       AND t.name LIKE '%${name}%'
     </if>
-    ORDER BY c.sort_order, t.id
+    ORDER BY c.sort_order, t.code
     <bind name="offset" value="(page - 1) * size"/>
     <if test="offset &lt; 1">LIMIT 0, #{size}</if>
     <if test="offset &gt; 0">LIMIT #{offset}, #{size}</if>
@@ -82,7 +82,7 @@
   <select id="get"
     resultType="jp.co.next_evolution.sandbox.infrastructure.db.entity.FxEconomicIndicator">
     SELECT
-       t.id            AS id
+       t.code          AS code
       ,t.country_code  AS countryCode
       ,t.name          AS name
       ,t.importance    AS importance
@@ -97,7 +97,9 @@
       ,c.name_short    AS countryNameShort
     FROM fx_economic_indicator t
     INNER JOIN fx_country c ON c.code = t.country_code
-    WHERE t.id = #{id}
+    WHERE
+      t.country_code = #{countryCode}
+      AND t.code     = #{code}
   </select>
 
   <select id="exists" resultType="boolean">
@@ -111,10 +113,10 @@
   </select>
 
   <insert id="insert"
-    parameterType="jp.co.next_evolution.sandbox.infrastructure.db.entity.FxEconomicIndicator"
-    useGeneratedKeys="true" keyProperty="id">
+    parameterType="jp.co.next_evolution.sandbox.infrastructure.db.entity.FxEconomicIndicator">
     INSERT INTO fx_economic_indicator (
-       country_code
+       code
+      ,country_code
       ,name
       ,importance
       ,description
@@ -125,7 +127,8 @@
       ,updated_at
       ,updated_by
     ) VALUES (
-       #{countryCode}
+       #{code}
+      ,#{countryCode}
       ,#{name}
       ,#{importance}
       ,#{description}
@@ -141,15 +144,15 @@
   <update id="update">
     UPDATE fx_economic_indicator
     SET
-       name         = #{indicator.name}
-      ,importance   = #{indicator.importance}
-      ,country_code = #{indicator.countryCode}
-      ,description  = #{indicator.description}
+       name          = #{indicator.name}
+      ,importance    = #{indicator.importance}
+      ,country_code  = #{indicator.countryCode}
+      ,description   = #{indicator.description}
       ,unit_of_value = #{indicator.unitOfValue}
-      ,updated_at   = #{indicator.updatedAt}
-      ,updated_by   = #{indicator.updatedBy}
+      ,updated_at    = #{indicator.updatedAt}
+      ,updated_by    = #{indicator.updatedBy}
     WHERE
-      id           = #{indicator.id}
+      code         = #{indicator.code}
       AND country_code = #{countryCode}
   </update>
 

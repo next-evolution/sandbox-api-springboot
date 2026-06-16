@@ -19,14 +19,15 @@ public class EconomicIndicatorDataRepositoryImpl implements EconomicIndicatorDat
   private final EconomicIndicatorDataMapper economicIndicatorDataMapper;
 
   @Override
-  public int count(long id, String importance, String countryCode, LocalDate publicationBaseDate) {
-    return economicIndicatorDataMapper.count(id, importance, countryCode, publicationBaseDate);
+  public int count(String code, String countryCode, String importance,
+      LocalDate publicationBaseDate) {
+    return economicIndicatorDataMapper.count(code, countryCode, importance, publicationBaseDate);
   }
 
   @Override
-  public List<EconomicIndicatorData> search(long id, String importance, String countryCode,
+  public List<EconomicIndicatorData> search(String code, String countryCode, String importance,
       LocalDate publicationBaseDate, int page, int size, boolean sortAsc) {
-    return economicIndicatorDataMapper.search(id, importance, countryCode, publicationBaseDate,
+    return economicIndicatorDataMapper.search(code, countryCode, importance, publicationBaseDate,
         page, size, sortAsc)
         .stream()
         .map(this::toDomain)
@@ -34,14 +35,15 @@ public class EconomicIndicatorDataRepositoryImpl implements EconomicIndicatorDat
   }
 
   @Override
-  public Optional<EconomicIndicatorData> get(Long id, LocalDateTime publication) {
-    return Optional.ofNullable(economicIndicatorDataMapper.get(id, publication))
+  public Optional<EconomicIndicatorData> get(String code, String countryCode,
+      LocalDateTime publication) {
+    return Optional.ofNullable(economicIndicatorDataMapper.get(code, countryCode, publication))
         .map(this::toDomain);
   }
 
   @Override
-  public boolean exists(Long id, LocalDateTime publication) {
-    return economicIndicatorDataMapper.exists(id, publication);
+  public boolean exists(String code, String countryCode, LocalDateTime publication) {
+    return economicIndicatorDataMapper.exists(code, countryCode, publication);
   }
 
   @Override
@@ -55,8 +57,9 @@ public class EconomicIndicatorDataRepositoryImpl implements EconomicIndicatorDat
   }
 
   @Override
-  public int updateId(EconomicIndicatorData data, Long id, LocalDateTime publication) {
-    return economicIndicatorDataMapper.updateId(toRecord(data), id, publication);
+  public int updateCode(EconomicIndicatorData data, String code, String countryCode,
+      LocalDateTime publication) {
+    return economicIndicatorDataMapper.updateCode(toRecord(data), code, countryCode, publication);
   }
 
   @Override
@@ -84,7 +87,7 @@ public class EconomicIndicatorDataRepositoryImpl implements EconomicIndicatorDat
 
   private EconomicIndicatorData toDomain(FxEconomicIndicatorData record) {
     return EconomicIndicatorData.builder()
-        .id(record.getId())
+        .code(record.getCode())
         .countryCode(record.getCountryCode())
         .name(record.getName())
         .importance(record.getImportance())
@@ -106,7 +109,8 @@ public class EconomicIndicatorDataRepositoryImpl implements EconomicIndicatorDat
 
   private FxEconomicIndicatorData toRecord(EconomicIndicatorData model) {
     return FxEconomicIndicatorData.builder()
-        .id(model.getId())
+        .code(model.getCode())
+        .countryCode(model.getCountryCode())
         .publication(model.getPublication())
         .subTitle(model.getSubTitle())
         .resultValue(model.getResultValue())

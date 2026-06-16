@@ -2,7 +2,6 @@ package jp.co.next_evolution.sandbox.application.usecase.fx.economicindicatordat
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Objects;
 import jp.co.next_evolution.sandbox.application.dto.fx.EconomicIndicatorDataDto;
 import jp.co.next_evolution.sandbox.domain.exception.DuplicateException;
 import jp.co.next_evolution.sandbox.domain.exception.NotFoundException;
@@ -22,14 +21,14 @@ public class UpdateEconomicIndicatorDataUseCase {
   private final EconomicIndicatorDataRepository economicIndicatorDataRepository;
 
   @Transactional
-  public void execute(Long economicIndicatorId, LocalDateTime publication,
+  public void execute(String code, String countryCode, LocalDateTime publication,
       EconomicIndicatorDataDto dto) {
 
-    EconomicIndicatorData existing = economicIndicatorDataRepository.get(economicIndicatorId,
+    EconomicIndicatorData existing = economicIndicatorDataRepository.get(code, countryCode,
         publication)
         .orElseThrow(() -> new NotFoundException(publication.format(DTF)));
 
-    boolean isIdDiff = !Objects.equals(economicIndicatorId, dto.id());
+    boolean isCodeDiff = !code.equals(dto.code()) || !countryCode.equals(dto.countryCode());
     boolean isPublicationDiff = !publication.equals(dto.publication());
 
     String displayName = isPublicationDiff
@@ -38,7 +37,8 @@ public class UpdateEconomicIndicatorDataUseCase {
             existing.getCountryNameShort(), existing.getName());
 
     EconomicIndicatorData toUpdate = EconomicIndicatorData.builder()
-        .id(dto.id())
+        .code(dto.code())
+        .countryCode(dto.countryCode())
         .publication(dto.publication())
         .subTitle(dto.subTitle())
         .resultValue(dto.resultValue())
@@ -47,17 +47,19 @@ public class UpdateEconomicIndicatorDataUseCase {
         .memo(dto.memo())
         .build();
 
-    if (isIdDiff) {
-      if (economicIndicatorDataRepository.exists(dto.id(), dto.publication())) {
+    if (isCodeDiff) {
+      if (economicIndicatorDataRepository.exists(
+          dto.code(), dto.countryCode(), dto.publication())) {
         throw new DuplicateException(displayName);
       }
-      if (economicIndicatorDataRepository.updateId(toUpdate, economicIndicatorId,
+      if (economicIndicatorDataRepository.updateCode(toUpdate, code, countryCode,
           publication) != 1) {
         throw new UpdateException(displayName);
       }
     } else {
       if (isPublicationDiff
-          && economicIndicatorDataRepository.exists(dto.id(), dto.publication())) {
+          && economicIndicatorDataRepository.exists(dto.code(), dto.countryCode(),
+              dto.publication())) {
         throw new DuplicateException(displayName);
       }
       if (economicIndicatorDataRepository.update(toUpdate, publication) != 1) {

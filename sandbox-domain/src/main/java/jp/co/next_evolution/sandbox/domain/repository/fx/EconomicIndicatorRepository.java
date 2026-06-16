@@ -12,7 +12,7 @@ public interface EconomicIndicatorRepository {
   List<EconomicIndicator> search(int page, int size, String countryCode, String importance,
       String name);
 
-  Optional<EconomicIndicator> get(Long id);
+  Optional<EconomicIndicator> get(String countryCode, String code);
 
   boolean exists(String countryCode, String name);
 

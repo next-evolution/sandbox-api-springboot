@@ -9,20 +9,21 @@ import org.apache.ibatis.annotations.Mapper;
 @Mapper
 public interface EconomicIndicatorDataMapper {
 
-  int count(long id, String importance, String countryCode, LocalDate publicationBaseDate);
+  int count(String code, String countryCode, String importance, LocalDate publicationBaseDate);
 
-  List<FxEconomicIndicatorData> search(long id, String importance, String countryCode,
+  List<FxEconomicIndicatorData> search(String code, String countryCode, String importance,
       LocalDate publicationBaseDate, int page, int size, boolean sortAsc);
 
-  boolean exists(Long id, LocalDateTime publication);
+  boolean exists(String code, String countryCode, LocalDateTime publication);
 
-  FxEconomicIndicatorData get(Long id, LocalDateTime publication);
+  FxEconomicIndicatorData get(String code, String countryCode, LocalDateTime publication);
 
   int insert(FxEconomicIndicatorData data);
 
   int update(FxEconomicIndicatorData data, LocalDateTime publication);
 
-  int updateId(FxEconomicIndicatorData data, Long id, LocalDateTime publication);
+  int updateCode(FxEconomicIndicatorData data, String code, String countryCode,
+      LocalDateTime publication);
 
   int deleteLoad();
 

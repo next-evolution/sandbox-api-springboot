@@ -13,13 +13,13 @@ public class SearchEconomicIndicatorDataUseCase {
 
   private final EconomicIndicatorDataRepository economicIndicatorDataRepository;
 
-  public SearchResult execute(long id, String importance, String countryCode,
+  public SearchResult execute(String code, String importance, String countryCode,
       LocalDate publicationBaseDate, int page, int size, boolean sortAsc) {
 
-    int count = economicIndicatorDataRepository.count(id, importance, countryCode,
+    int count = economicIndicatorDataRepository.count(code, countryCode, importance,
         publicationBaseDate);
     List<EconomicIndicatorDataDto> list = count > 0
-        ? economicIndicatorDataRepository.search(id, importance, countryCode, publicationBaseDate,
+        ? economicIndicatorDataRepository.search(code, countryCode, importance, publicationBaseDate,
             page, size, sortAsc)
                                          .stream()
                                          .map(EconomicIndicatorDataDto::fromDomain)

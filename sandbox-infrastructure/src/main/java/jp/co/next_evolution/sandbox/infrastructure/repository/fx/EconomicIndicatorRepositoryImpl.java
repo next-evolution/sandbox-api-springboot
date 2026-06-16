@@ -37,8 +37,8 @@ public class EconomicIndicatorRepositoryImpl implements EconomicIndicatorReposit
   }
 
   @Override
-  public Optional<EconomicIndicator> get(Long id) {
-    return Optional.ofNullable(economicIndicatorMapper.get(id)).map(this::toDomain);
+  public Optional<EconomicIndicator> get(String countryCode, String code) {
+    return Optional.ofNullable(economicIndicatorMapper.get(countryCode, code)).map(this::toDomain);
   }
 
   @Override
@@ -91,7 +91,7 @@ public class EconomicIndicatorRepositoryImpl implements EconomicIndicatorReposit
 
   private EconomicIndicator toDomain(FxEconomicIndicator record) {
     return EconomicIndicator.builder()
-        .id(record.getId())
+        .code(record.getCode())
         .countryCode(record.getCountryCode())
         .name(record.getName())
         .importance(record.getImportance())
@@ -109,7 +109,7 @@ public class EconomicIndicatorRepositoryImpl implements EconomicIndicatorReposit
 
   private FxEconomicIndicator toRecord(EconomicIndicator model) {
     return FxEconomicIndicator.builder()
-        .id(model.getId())
+        .code(model.getCode())
         .countryCode(model.getCountryCode())
         .name(model.getName())
         .importance(model.getImportance())

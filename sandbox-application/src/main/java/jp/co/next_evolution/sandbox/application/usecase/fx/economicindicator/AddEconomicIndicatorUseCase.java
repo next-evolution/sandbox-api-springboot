@@ -25,6 +25,7 @@ public class AddEconomicIndicatorUseCase {
 
     LocalDateTime now = LocalDateTime.now();
     EconomicIndicator indicator = EconomicIndicator.builder()
+        .code(dto.code())
         .countryCode(dto.countryCode())
         .name(dto.name())
         .importance(dto.importance())

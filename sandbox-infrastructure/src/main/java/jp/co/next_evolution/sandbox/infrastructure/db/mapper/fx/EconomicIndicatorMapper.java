@@ -17,7 +17,7 @@ public interface EconomicIndicatorMapper {
   List<FxEconomicIndicator> search(int page, int size, String countryCode, String importance,
       String name);
 
-  FxEconomicIndicator get(Long id);
+  FxEconomicIndicator get(String countryCode, String code);
 
   boolean exists(String countryCode, String name);
 

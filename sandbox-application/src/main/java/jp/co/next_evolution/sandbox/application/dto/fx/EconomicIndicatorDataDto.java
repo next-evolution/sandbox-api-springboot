@@ -13,9 +13,9 @@ import java.time.LocalDateTime;
 import jp.co.next_evolution.sandbox.domain.model.fx.EconomicIndicatorData;
 
 public record EconomicIndicatorDataDto(
-    @Schema(requiredMode = REQUIRED, description = "経済指標ID")
-    Long id,
-    @Schema(requiredMode = NOT_REQUIRED, description = "国コード")
+    @Schema(requiredMode = REQUIRED, description = "経済指標コード", example = "CPI_YOY")
+    String code,
+    @Schema(requiredMode = REQUIRED, description = "国コード", example = "JP")
     String countryCode,
     @Schema(requiredMode = NOT_REQUIRED, description = "指標名")
     String name,
@@ -54,7 +54,7 @@ public record EconomicIndicatorDataDto(
 
   public static EconomicIndicatorDataDto fromDomain(EconomicIndicatorData model) {
     return new EconomicIndicatorDataDto(
-        model.getId(),
+        model.getCode(),
         model.getCountryCode(),
         model.getName(),
         model.getImportance(),

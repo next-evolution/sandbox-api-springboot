@@ -37,13 +37,13 @@
 | `GET /v1/fx/summer-time/{targetYear}` | `SummerTimeDto`（直接） |
 | `POST /v1/fx/summer-time` | ボディなし（200 OK） |
 | `PUT /v1/fx/summer-time/{targetYear}` | ボディなし（200 OK） |
-| `GET /v1/fx/economic-indicator/{countryCode}/{id}` | `EconomicIndicatorDto`（直接） |
+| `GET /v1/fx/economic-indicator/{countryCode}/{code}` | `EconomicIndicatorDto`（直接） |
 | `POST /v1/fx/economic-indicator` | ボディなし（200 OK） |
-| `PUT /v1/fx/economic-indicator/{countryCode}/{id}` | ボディなし（200 OK） |
+| `PUT /v1/fx/economic-indicator/{countryCode}/{code}` | ボディなし（200 OK） |
 | `GET /v1/fx/bar-data/{symbolType}/{barType}` | `List<BarDataImportResult>` |
-| `GET /v1/fx/economic-indicator-data/{economicIndicatorId}/{publication}` | `EconomicIndicatorDataDto`（直接） |
+| `GET /v1/fx/economic-indicator-data/{countryCode}/{code}/{publication}` | `EconomicIndicatorDataDto`（直接） |
 | `POST /v1/fx/economic-indicator-data` | ボディなし（200 OK） |
-| `PUT /v1/fx/economic-indicator-data/{economicIndicatorId}/{publication}` | ボディなし（200 OK） |
+| `PUT /v1/fx/economic-indicator-data/{countryCode}/{code}/{publication}` | ボディなし（200 OK） |
 | `POST /v1/fx/economic-indicator-data/import-text` | `List<FileImportResult>` |
 
 ### 認証
@@ -138,8 +138,8 @@
 |---|---|---|
 | POST | `/v1/fx/economic-indicator/search` | 経済指標検索（`countryCode`・`importance`・`name`・ページング） |
 | POST | `/v1/fx/economic-indicator` | 経済指標追加 |
-| GET | `/v1/fx/economic-indicator/{countryCode}/{id}` | 経済指標取得 |
-| PUT | `/v1/fx/economic-indicator/{countryCode}/{id}` | 経済指標更新 |
+| GET | `/v1/fx/economic-indicator/{countryCode}/{code}` | 経済指標取得 |
+| PUT | `/v1/fx/economic-indicator/{countryCode}/{code}` | 経済指標更新 |
 
 ---
 
@@ -147,10 +147,10 @@
 
 | メソッド | パス | 説明 |
 |---|---|---|
-| POST | `/v1/fx/economic-indicator-data/search` | 経済指標データ検索（`id`・`importance`・`countryCode`・`publicationBaseDate`・ページング） |
+| POST | `/v1/fx/economic-indicator-data/search` | 経済指標データ検索（`code`・`importance`・`countryCode`・`publicationBaseDate`・ページング） |
 | POST | `/v1/fx/economic-indicator-data` | 経済指標データ追加 |
-| GET | `/v1/fx/economic-indicator-data/{economicIndicatorId}/{publication}` | 経済指標データ取得（`publication` は `yyyy-MM-dd HH:mm:ss`） |
-| PUT | `/v1/fx/economic-indicator-data/{economicIndicatorId}/{publication}` | 経済指標データ更新 |
+| GET | `/v1/fx/economic-indicator-data/{countryCode}/{code}/{publication}` | 経済指標データ取得（`publication` は `yyyy-MM-dd HH:mm:ss`） |
+| PUT | `/v1/fx/economic-indicator-data/{countryCode}/{code}/{publication}` | 経済指標データ更新 |
 | POST | `/v1/fx/economic-indicator-data/import-text` | テキストファイル一括インポート（`multipart/form-data`、`uploadFileList`） |
 
 ---
