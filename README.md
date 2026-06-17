@@ -42,10 +42,10 @@ sandbox-api ──→ sandbox-application ──→ sandbox-domain ←──┐
 
 | ディレクトリ | 用途 |
 |---|---|
-| `docker/mysql/` | MySQL コンテナ設定（`50-server.cnf`, `initdb.d/`） |
-| `local/work/` | Docker コンテナ共通の `/work` ボリュームマウント |
-| `tools/jmeter/` | JMeter による手動 API テスト（シナリオ・テストデータ） |
+| `local/` | Docker コンテナ共通のボリュームマウント（`storage/`, `tmp/`, `work/`） |
 | `docs/` | API 仕様・アーキテクチャ・開発 Tips |
+
+> Docker Compose 環境・Bruno テストコレクション・データファイルは [`sandbox-tools`](../sandbox-tools) リポジトリで管理。
 
 ---
 
@@ -69,26 +69,16 @@ sandbox-api ──→ sandbox-application ──→ sandbox-domain ←──┐
 
 ### 1. ローカルインフラ起動
 
-```bash
-# テンプレートをコピーして実際の値を設定（初回のみ）
-cp .env.compose.example .env.compose
+MySQL・Redis は `sandbox-tools` リポジトリで管理。
 
-# MySQL（43306）+ Redis（46379）を Docker で起動
+```bash
+# sandbox-tools/docker/ で実行
+cd ../sandbox-tools/docker
+cp .env.compose.example .env.compose  # 初回のみ・値を実際の環境に合わせて編集
 docker compose --env-file .env.compose up -d
 ```
 
-`.env.compose` の主な設定項目：
-
-| 変数名 | 説明 |
-|---|---|
-| `MYSQL_ROOT_PASSWORD` | MySQL root パスワード |
-| `DB_SCHEMA` | データベース名 |
-| `DB_USER` | API 接続ユーザー名 |
-| `DB_PASSWORD` | API 接続ユーザーパスワード |
-| `DB_PORT` | MySQL ホスト側ポート（デフォルト: 43306） |
-| `REDIS_PORT` | Redis ホスト側ポート（デフォルト: 46379） |
-| `ADMIN_UUID` | 初期管理者の Cognito sub |
-| `ADMIN_EMAIL` | 初期管理者のメールアドレス |
+詳細は [`sandbox-tools/docs/docker.md`](../sandbox-tools/docs/docker.md) 参照。
 
 > `initdb.d/` スクリプトが初回起動時に DB 作成・アプリユーザー作成・管理者ユーザー INSERT を自動実行します。  
 > 再初期化する場合は `docker compose down -v` でボリュームを削除してから再起動してください。
