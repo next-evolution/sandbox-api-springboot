@@ -7,6 +7,9 @@ docs/*
 # env
 .env.bootRun
 
+# local
+local/*
+
 /.idea/**
 /.run/**
 

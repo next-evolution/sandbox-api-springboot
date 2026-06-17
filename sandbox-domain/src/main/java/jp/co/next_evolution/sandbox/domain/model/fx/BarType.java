@@ -1,5 +1,6 @@
 package jp.co.next_evolution.sandbox.domain.model.fx;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.Arrays;
@@ -30,6 +31,7 @@ public enum BarType {
     return OffsetDateTime.parse(src).toLocalDateTime();
   }
 
+  @JsonCreator
   public static BarType of(String code) {
     return Arrays.stream(values())
                  .filter(v -> v.getCode().equals(code))
