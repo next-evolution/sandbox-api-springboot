@@ -52,7 +52,7 @@ Spring Boot 3 / Java 21 で構築された RestAPI。
 ./gradlew build
 
 # 実行（.env.bootRun から環境変数を自動読み込み）
-cp .env.bootRun.example .env.bootRun   # 初回のみ・値を実際の環境に合わせて編集
+cp .env.example .env   # 初回のみ・値を実際の環境に合わせて編集
 ./gradlew sandbox-api:bootRun
 
 # テスト省略ビルド
@@ -60,26 +60,24 @@ cp .env.bootRun.example .env.bootRun   # 初回のみ・値を実際の環境に
 
 # Checkstyle（ビルド時に自動実行）
 ./gradlew checkstyleMain
-
-# docker compose .env.compose を編集して実際の値を設定
-docker compose --env-file .env.compose up -d
 ```
 
 ### 環境変数ファイル
 
 | ファイル | 用途 |
 |---|---|
-| `.env.bootRun.example` | bootRun テンプレート（git 管理対象） |
-| `.env.bootRun` | bootRun 実際の値（git 除外済み） |
-| `.env.compose.example` | docker compose テンプレート（git 管理対象） |
-| `.env.compose` | docker compose 実際の値（git 除外済み） |
+| `.env.example` | bootRun テンプレート（git 管理対象） |
+| `.env` | bootRun 実際の値（git 除外済み） |
 
 `build.gradle` の `bootRun` タスクが `.env.bootRun` を自動読み込みするため、別途 `export` や `source` は不要。
 
 ### ローカルインフラ起動
 
+MySQL・Redis は `sandbox-tools` リポジトリで管理。
+
 ```bash
-# MySQL（43306）+ Redis（46379）を Docker で起動
+# sandbox-tools/docker/ で実行
+cd ../sandbox-tools/docker
 cp .env.compose.example .env.compose  # 初回のみ・値を実際の環境に合わせて編集
 docker compose --env-file .env.compose up -d
 ```
@@ -151,7 +149,8 @@ public ResponseEntity<ApiResponse> someAdminApi(@AuthenticationPrincipal AuthUse
 
 ### 環境変数
 
-新しい環境変数を追加・削除・リネームしたら、`.env.bootRun.example` と `.env.compose.example` の該当箇所も同時に更新する。
+新しい環境変数を追加・削除・リネームしたら、`.env.bootRun.example` の該当箇所も同時に更新する。
+docker 関連の環境変数は `sandbox-tools/docker/.env.compose.example` を更新する。
 
 ### Checkstyle
 
