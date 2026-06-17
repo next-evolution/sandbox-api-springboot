@@ -13,12 +13,13 @@ public class GetEconomicIndicatorDataUseCase {
 
   private final EconomicIndicatorDataRepository economicIndicatorDataRepository;
 
-  public EconomicIndicatorDataDto execute(Long id, LocalDateTime publication) {
+  public EconomicIndicatorDataDto execute(String code, String countryCode,
+      LocalDateTime publication) {
 
-    return economicIndicatorDataRepository.get(id, publication)
+    return economicIndicatorDataRepository.get(code, countryCode, publication)
         .map(EconomicIndicatorDataDto::fromDomain)
         .orElseThrow(() -> new NotFoundException(
-            String.format("%d / %s", id, publication)));
+            String.format("(%s) %s / %s", countryCode, code, publication)));
 
   }
 

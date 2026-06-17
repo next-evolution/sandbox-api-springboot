@@ -121,7 +121,8 @@ public class EconomicIndicatorDataParser {
     String unitOfValue = extractUnitOfValue(elem[6]);
 
     return EconomicIndicatorData.builder()
-        .id(indicator.getId())
+        .code(indicator.getCode())
+        .countryCode(indicator.getCountryCode())
         .publication(toPublication(baseDate, elem[0]))
         .subTitle(subTitle)
         .previousValue(removeUnitOfValue(elem[4], unitOfValue))

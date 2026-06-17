@@ -4,14 +4,14 @@
 <mapper namespace="jp.co.next_evolution.sandbox.infrastructure.db.mapper.fx.EconomicIndicatorDataMapper">
 
   <sql id="searchWhere">
-    <if test='id > 0'>
-      AND T.id = #{id}
+    <if test='code != null and code != ""'>
+      AND T.code = #{code}
     </if>
     <if test='importance != null and importance != ""'>
       AND E.importance = #{importance}
     </if>
     <if test='countryCode != null and countryCode != ""'>
-      AND E.country_code = #{countryCode}
+      AND T.country_code = #{countryCode}
     </if>
     <if test='publicationBaseDate != null'>
       AND T.publication >= #{publicationBaseDate}
@@ -19,18 +19,19 @@
   </sql>
 
   <select id="count" resultType="Integer">
-    SELECT COUNT(T.id)
+    SELECT COUNT(*)
     FROM fx_economic_indicator_data T
-    INNER JOIN fx_economic_indicator E ON E.id = T.id
-    WHERE T.id > 0
+    INNER JOIN fx_economic_indicator E
+      ON E.code = T.code AND E.country_code = T.country_code
+    WHERE 1 = 1
     <include refid="searchWhere"/>
   </select>
 
   <select id="search"
     resultType="jp.co.next_evolution.sandbox.infrastructure.db.entity.FxEconomicIndicatorData">
     SELECT
-       T.id                                    AS id
-      ,C.code                                  AS countryCode
+       T.code                                  AS code
+      ,T.country_code                          AS countryCode
       ,E.importance                            AS importance
       ,C.name                                  AS countryName
       ,C.name_short                            AS countryNameShort
@@ -47,9 +48,10 @@
       ,E.unit_of_value                         AS unitOfValue
       ,T.memo                                  AS memo
     FROM fx_economic_indicator_data T
-    INNER JOIN fx_economic_indicator E ON E.id = T.id
-    INNER JOIN fx_country C ON C.code = E.country_code
-    WHERE T.id > 0
+    INNER JOIN fx_economic_indicator E
+      ON E.code = T.code AND E.country_code = T.country_code
+    INNER JOIN fx_country C ON C.code = T.country_code
+    WHERE 1 = 1
     <include refid="searchWhere"/>
     <if test="sortAsc == true">
       ORDER BY T.publication
@@ -67,16 +69,17 @@
       SELECT *
       FROM fx_economic_indicator_data
       WHERE
-        id          = #{id}
-        AND publication = #{publication}
+        code         = #{code}
+        AND country_code = #{countryCode}
+        AND publication  = #{publication}
     )
   </select>
 
   <select id="get"
     resultType="jp.co.next_evolution.sandbox.infrastructure.db.entity.FxEconomicIndicatorData">
     SELECT
-       T.id                                    AS id
-      ,C.code                                  AS countryCode
+       T.code                                  AS code
+      ,T.country_code                          AS countryCode
       ,E.importance                            AS importance
       ,C.name                                  AS countryName
       ,C.name_short                            AS countryNameShort
@@ -93,18 +96,21 @@
       ,E.unit_of_value                         AS unitOfValue
       ,T.memo                                  AS memo
     FROM fx_economic_indicator_data T
-    INNER JOIN fx_economic_indicator E ON E.id = T.id
-    INNER JOIN fx_country C ON C.code = E.country_code
+    INNER JOIN fx_economic_indicator E
+      ON E.code = T.code AND E.country_code = T.country_code
+    INNER JOIN fx_country C ON C.code = T.country_code
     WHERE
-      T.id          = #{id}
-      AND T.publication = #{publication}
+      T.code         = #{code}
+      AND T.country_code = #{countryCode}
+      AND T.publication  = #{publication}
   </select>
 
   <insert id="insert"
     parameterType="jp.co.next_evolution.sandbox.infrastructure.db.entity.FxEconomicIndicatorData">
     INSERT INTO fx_economic_indicator_data
     VALUES (
-       #{id}
+       #{code}
+      ,#{countryCode}
       ,#{publication}
       ,#{subTitle}
       ,#{resultValue}
@@ -124,14 +130,16 @@
       ,previous_value = #{data.previousValue}
       ,memo           = #{data.memo}
     WHERE
-      id          = #{data.id}
-      AND publication = #{publication}
+      code           = #{data.code}
+      AND country_code = #{data.countryCode}
+      AND publication  = #{publication}
   </update>
 
-  <update id="updateId">
+  <update id="updateCode">
     UPDATE fx_economic_indicator_data
     SET
-       id             = #{data.id}
+       code           = #{data.code}
+      ,country_code   = #{data.countryCode}
       ,publication    = #{data.publication}
       ,sub_title      = #{data.subTitle}
       ,result_value   = #{data.resultValue}
@@ -139,8 +147,9 @@
       ,previous_value = #{data.previousValue}
       ,memo           = #{data.memo}
     WHERE
-      id          = #{id}
-      AND publication = #{publication}
+      code           = #{code}
+      AND country_code = #{countryCode}
+      AND publication  = #{publication}
   </update>
 
   <delete id="deleteLoad">
@@ -151,7 +160,8 @@
     parameterType="jp.co.next_evolution.sandbox.infrastructure.db.entity.FxEconomicIndicatorData">
     INSERT INTO fx_economic_indicator_data_load
     VALUES (
-       #{id}
+       #{code}
+      ,#{countryCode}
       ,#{publication}
       ,#{subTitle}
       ,#{resultValue}
@@ -164,26 +174,28 @@
   <select id="loadDiff"
     resultType="jp.co.next_evolution.sandbox.infrastructure.db.entity.FxEconomicIndicatorData">
     SELECT
-       T.id             AS id
-      ,C.code           AS countryCode
-      ,E.importance     AS importance
-      ,C.name           AS countryName
-      ,C.name_short     AS countryNameShort
-      ,E.name           AS name
-      ,E.description    AS description
-      ,T.publication    AS publication
-      ,T.sub_title      AS subTitle
-      ,T.result_value   AS resultValue
-      ,T.forecast_value AS forecastValue
-      ,T.previous_value AS previousValue
-      ,E.unit_of_value  AS unitOfValue
-      ,T.memo           AS memo
+       T.code            AS code
+      ,T.country_code    AS countryCode
+      ,E.importance      AS importance
+      ,C.name            AS countryName
+      ,C.name_short      AS countryNameShort
+      ,E.name            AS name
+      ,E.description     AS description
+      ,T.publication     AS publication
+      ,T.sub_title       AS subTitle
+      ,T.result_value    AS resultValue
+      ,T.forecast_value  AS forecastValue
+      ,T.previous_value  AS previousValue
+      ,E.unit_of_value   AS unitOfValue
+      ,T.memo            AS memo
     FROM fx_economic_indicator_data T
-    INNER JOIN fx_economic_indicator E ON E.id = T.id
-    INNER JOIN fx_country C ON C.code = E.country_code
-    INNER JOIN fx_economic_indicator_data_load L ON
-      T.id = L.id
-      AND T.publication = L.publication
+    INNER JOIN fx_economic_indicator E
+      ON E.code = T.code AND E.country_code = T.country_code
+    INNER JOIN fx_country C ON C.code = T.country_code
+    INNER JOIN fx_economic_indicator_data_load L
+      ON T.code         = L.code
+      AND T.country_code = L.country_code
+      AND T.publication  = L.publication
     WHERE
       T.result_value   != L.result_value
       OR T.forecast_value != L.forecast_value
@@ -193,7 +205,8 @@
   <insert id="insertFromLoad">
     INSERT INTO fx_economic_indicator_data
     SELECT
-       L.id
+       L.code
+      ,L.country_code
       ,L.publication
       ,L.sub_title
       ,L.result_value
@@ -201,10 +214,11 @@
       ,L.previous_value
       ,L.memo
     FROM fx_economic_indicator_data_load L
-    LEFT JOIN fx_economic_indicator_data D ON
-      D.id          = L.id
-      AND D.publication = L.publication
-    WHERE D.id IS NULL
+    LEFT JOIN fx_economic_indicator_data D
+      ON D.code         = L.code
+      AND D.country_code = L.country_code
+      AND D.publication  = L.publication
+    WHERE D.code IS NULL
   </insert>
 
 </mapper>

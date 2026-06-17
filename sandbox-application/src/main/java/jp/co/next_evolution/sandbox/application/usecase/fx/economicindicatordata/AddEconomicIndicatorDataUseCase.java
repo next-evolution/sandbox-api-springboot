@@ -18,13 +18,14 @@ public class AddEconomicIndicatorDataUseCase {
   @Transactional
   public void execute(EconomicIndicatorDataDto dto) {
 
-    if (economicIndicatorDataRepository.exists(dto.id(), dto.publication())) {
+    if (economicIndicatorDataRepository.exists(dto.code(), dto.countryCode(), dto.publication())) {
       throw new DuplicateException(
-          String.format("%d / %s", dto.id(), dto.publication()));
+          String.format("(%s) %s / %s", dto.countryCode(), dto.code(), dto.publication()));
     }
 
     EconomicIndicatorData data = EconomicIndicatorData.builder()
-        .id(dto.id())
+        .code(dto.code())
+        .countryCode(dto.countryCode())
         .publication(dto.publication())
         .subTitle(dto.subTitle())
         .resultValue(dto.resultValue())
@@ -35,7 +36,7 @@ public class AddEconomicIndicatorDataUseCase {
 
     if (economicIndicatorDataRepository.add(data) != 1) {
       throw new InsertException(
-          String.format("%d / %s", dto.id(), dto.publication()));
+          String.format("(%s) %s / %s", dto.countryCode(), dto.code(), dto.publication()));
     }
 
   }

@@ -1,5 +1,5 @@
 CREATE TABLE `fx_economic_indicator` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT '経済指標ID',
+  `code` varchar(32) NOT NULL COMMENT '経済指標コード',
   `country_code` char(2) NOT NULL COMMENT '国コード',
   `importance` char(1) NOT NULL COMMENT '重要度',
   `name` varchar(64) NOT NULL COMMENT '経済指標名称',
@@ -10,7 +10,6 @@ CREATE TABLE `fx_economic_indicator` (
   `created_by` varchar(128) NOT NULL COMMENT 'レコード作成者情報',
   `updated_at` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp() COMMENT 'レコード更新日時',
   `updated_by` varchar(128) NOT NULL COMMENT 'レコード更新者情報',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `country_code` (`country_code`,`name`),
+  PRIMARY KEY (`code`, `country_code`),
   KEY `fx_economic_indicator_idx1` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='経済指標情報';

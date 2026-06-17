@@ -12,12 +12,11 @@ public class GetEconomicIndicatorUseCase {
 
   private final EconomicIndicatorRepository economicIndicatorRepository;
 
-  public EconomicIndicatorDto execute(String countryCode, Long id) {
+  public EconomicIndicatorDto execute(String countryCode, String code) {
 
-    return economicIndicatorRepository.get(id)
-        .filter(e -> e.getCountryCode().equals(countryCode))
+    return economicIndicatorRepository.get(countryCode, code)
         .map(EconomicIndicatorDto::fromDomain)
-        .orElseThrow(() -> new NotFoundException(String.format("(%s) %d", countryCode, id)));
+        .orElseThrow(() -> new NotFoundException(String.format("(%s) %s", countryCode, code)));
 
   }
 

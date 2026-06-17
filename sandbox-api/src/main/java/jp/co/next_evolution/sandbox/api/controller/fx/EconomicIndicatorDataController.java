@@ -52,7 +52,7 @@ public class EconomicIndicatorDataController {
 
     SearchEconomicIndicatorDataUseCase.SearchResult result =
         searchEconomicIndicatorDataUseCase.execute(
-            req.getId(), req.getImportance(), req.getCountryCode(),
+            req.getCode(), req.getImportance(), req.getCountryCode(),
             req.getPublicationBaseDate(), req.getPage(), req.getSize(), req.isSortAsc());
 
     return ResponseEntity.ok(EconomicIndicatorDataSearchResponse.builder()
@@ -65,13 +65,14 @@ public class EconomicIndicatorDataController {
 
   }
 
-  @GetMapping("/{economicIndicatorId}/{publication}")
+  @GetMapping("/{countryCode}/{code}/{publication}")
   public ResponseEntity<EconomicIndicatorDataDto> get(
-      @PathVariable Long economicIndicatorId,
+      @PathVariable String countryCode,
+      @PathVariable String code,
       @PathVariable @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime publication) {
 
     return ResponseEntity.ok(
-        getEconomicIndicatorDataUseCase.execute(economicIndicatorId, publication));
+        getEconomicIndicatorDataUseCase.execute(code, countryCode, publication));
 
   }
 
@@ -84,13 +85,14 @@ public class EconomicIndicatorDataController {
 
   }
 
-  @PutMapping("/{economicIndicatorId}/{publication}")
+  @PutMapping("/{countryCode}/{code}/{publication}")
   public ResponseEntity<Void> update(
-      @PathVariable Long economicIndicatorId,
+      @PathVariable String countryCode,
+      @PathVariable String code,
       @PathVariable @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime publication,
       @RequestBody @Validated EconomicIndicatorDataRequest req) {
 
-    updateEconomicIndicatorDataUseCase.execute(economicIndicatorId, publication, req.getData());
+    updateEconomicIndicatorDataUseCase.execute(code, countryCode, publication, req.getData());
     return ResponseEntity.ok().build();
 
   }

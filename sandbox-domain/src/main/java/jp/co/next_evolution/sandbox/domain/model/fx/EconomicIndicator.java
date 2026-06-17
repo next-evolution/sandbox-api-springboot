@@ -8,7 +8,7 @@ import lombok.Getter;
 @Builder
 public class EconomicIndicator {
 
-  private final Long id;
+  private final String code;
   private final String countryCode;
   private final String name;
   private final String importance;

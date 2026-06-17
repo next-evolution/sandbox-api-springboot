@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 
 import java.io.InputStream;
@@ -60,7 +59,7 @@ class EconomicIndicatorDataControllerTest {
     SearchEconomicIndicatorDataUseCase.SearchResult result =
         new SearchEconomicIndicatorDataUseCase.SearchResult(0, List.of(), 1, 20);
     given(searchEconomicIndicatorDataUseCase.execute(
-        anyLong(), any(), any(), any(), anyInt(), anyInt(), anyBoolean())).willReturn(result);
+        any(), any(), any(), any(), anyInt(), anyInt(), anyBoolean())).willReturn(result);
 
     EconomicIndicatorDataSearchRequest req = new EconomicIndicatorDataSearchRequest();
 
@@ -75,7 +74,8 @@ class EconomicIndicatorDataControllerTest {
   void getReturnsDto() {
     LocalDateTime publication = LocalDateTime.of(2024, 1, 15, 10, 0, 0);
 
-    ResponseEntity<EconomicIndicatorDataDto> response = controller.get(1L, publication);
+    ResponseEntity<EconomicIndicatorDataDto> response =
+        controller.get("JP", "GDP_F_QOQ", publication);
 
     assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
   }
@@ -94,7 +94,7 @@ class EconomicIndicatorDataControllerTest {
     LocalDateTime publication = LocalDateTime.of(2024, 1, 15, 10, 0, 0);
     EconomicIndicatorDataRequest req = new EconomicIndicatorDataRequest();
 
-    ResponseEntity<Void> response = controller.update(1L, publication, req);
+    ResponseEntity<Void> response = controller.update("JP", "GDP_F_QOQ", publication, req);
 
     assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
   }

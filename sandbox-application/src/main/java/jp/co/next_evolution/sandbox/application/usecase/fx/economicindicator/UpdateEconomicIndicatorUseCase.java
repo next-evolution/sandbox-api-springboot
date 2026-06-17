@@ -18,14 +18,10 @@ public class UpdateEconomicIndicatorUseCase {
   private final EconomicIndicatorRepository economicIndicatorRepository;
 
   @Transactional
-  public void execute(String countryCode, Long id, EconomicIndicatorDto dto) {
+  public void execute(String countryCode, String code, EconomicIndicatorDto dto) {
 
-    EconomicIndicator existing = economicIndicatorRepository.get(id)
-        .orElseThrow(() -> new NotFoundException(String.format("(%s) %d", countryCode, id)));
-
-    if (!existing.getCountryCode().equals(countryCode)) {
-      throw new UpdateException(String.format("(%s) %d", countryCode, id));
-    }
+    economicIndicatorRepository.get(countryCode, code)
+        .orElseThrow(() -> new NotFoundException(String.format("(%s) %s", countryCode, code)));
 
     String newCountryCode = dto.countryCode();
     if (!countryCode.equals(newCountryCode)
@@ -34,7 +30,7 @@ public class UpdateEconomicIndicatorUseCase {
     }
 
     EconomicIndicator toUpdate = EconomicIndicator.builder()
-        .id(id)
+        .code(code)
         .countryCode(newCountryCode)
         .name(dto.name())
         .importance(dto.importance())
@@ -45,7 +41,7 @@ public class UpdateEconomicIndicatorUseCase {
         .build();
 
     if (economicIndicatorRepository.update(toUpdate, countryCode) != 1) {
-      throw new UpdateException(String.format("(%s) %d", countryCode, id));
+      throw new UpdateException(String.format("(%s) %s", countryCode, code));
     }
 
     economicIndicatorRepository.refreshCache(countryCode);

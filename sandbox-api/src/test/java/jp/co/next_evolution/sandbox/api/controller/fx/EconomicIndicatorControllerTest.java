@@ -60,10 +60,10 @@ class EconomicIndicatorControllerTest {
   @Test
   void getReturnsEconomicIndicatorDto() {
     EconomicIndicatorDto dto =
-        new EconomicIndicatorDto(1L, "JP", "GDP", "H", null, null, null, null);
-    given(getEconomicIndicatorUseCase.execute("JP", 1L)).willReturn(dto);
+        new EconomicIndicatorDto("GDP_F_QOQ", "JP", "GDP", "H", null, null, null, null);
+    given(getEconomicIndicatorUseCase.execute("JP", "GDP_F_QOQ")).willReturn(dto);
 
-    ResponseEntity<EconomicIndicatorDto> response = controller.get("JP", 1L);
+    ResponseEntity<EconomicIndicatorDto> response = controller.get("JP", "GDP_F_QOQ");
 
     assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
     assertThat(response.getBody()).isEqualTo(dto);
@@ -82,7 +82,7 @@ class EconomicIndicatorControllerTest {
   void updateReturnsOk() {
     EconomicIndicatorRequest req = new EconomicIndicatorRequest();
 
-    ResponseEntity<Void> response = controller.update("JP", 1L, req);
+    ResponseEntity<Void> response = controller.update("JP", "GDP_F_QOQ", req);
 
     assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
   }
