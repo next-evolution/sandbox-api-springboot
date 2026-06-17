@@ -8,7 +8,7 @@ Spring Boot 3 / Java 21 マルチモジュール Gradle プロジェクト。DDD
 
 | モジュール | 役割 |
 |---|---|
-| `sandbox-domain` | ドメインモデル（値オブジェクト・集約）、リポジトリインターフェース、ドメイン例外。Spring Security Core 以外のフレームワーク依存なし。 |
+| `sandbox-domain` | ドメインモデル（値オブジェクト・集約）、リポジトリインターフェース、ドメイン例外。Spring Context / Spring Security Core のみに依存。 |
 | `sandbox-application` | ユースケース（`*UseCase.java`）、コマンド、DTO。`sandbox-domain` のみに依存。各ユースケースは `@Service` クラスで `execute()` メソッドを持つ。 |
 | `sandbox-infrastructure` | リポジトリ実装（`*RepositoryImpl`）、MyBatis マッパー、Redis 設定。 |
 | `sandbox-api` | REST コントローラー、リクエスト/レスポンス DTO、`GlobalExceptionHandler`。実行可能 JAR を生成。 |
@@ -52,5 +52,6 @@ Spring Boot 3 / Java 21 マルチモジュール Gradle プロジェクト。DDD
 ## API 規約
 
 - ベースパス: `/api`（context-path）、バージョニング: `/v1/...`
-- レスポンスはすべて `ApiResponse` / `ApiSearchResponse` でラップし、`ReturnCode`（Ok, Warn 等）を含む
+- 基本レスポンスは `ApiResponse` / `ApiSearchResponse` でラップし `ReturnCode` を含む
+- マスター系・一部操作系エンドポイントは生 DTO / `List<T>` / 空ボディ（200 OK）を返す（詳細は `docs/api.md` 参照）
 - Checkstyle（`checkstyle.xml`）はビルド時に自動実行

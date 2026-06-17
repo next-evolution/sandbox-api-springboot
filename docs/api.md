@@ -41,6 +41,7 @@
 | `POST /v1/fx/economic-indicator` | ボディなし（200 OK） |
 | `PUT /v1/fx/economic-indicator/{countryCode}/{code}` | ボディなし（200 OK） |
 | `GET /v1/fx/bar-data/{symbolType}/{barType}` | `List<BarDataImportResult>` |
+| `POST /v1/fx/bar-data/import-csv/{symbol}/{barType}/{skipLatest}` | `BarDataImportResult` |
 | `GET /v1/fx/economic-indicator-data/{countryCode}/{code}/{publication}` | `EconomicIndicatorDataDto`（直接） |
 | `POST /v1/fx/economic-indicator-data` | ボディなし（200 OK） |
 | `PUT /v1/fx/economic-indicator-data/{countryCode}/{code}/{publication}` | ボディなし（200 OK） |
