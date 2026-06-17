@@ -1,9 +1,5 @@
 package jp.co.next_evolution.sandbox.application.usecase.fx.bardata;
 
-import com.fasterxml.jackson.databind.MappingIterator;
-import com.fasterxml.jackson.dataformat.csv.CsvMapper;
-import com.fasterxml.jackson.dataformat.csv.CsvSchema;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
@@ -30,6 +26,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.MappingIterator;
+import tools.jackson.dataformat.csv.CsvMapper;
+import tools.jackson.dataformat.csv.CsvSchema;
 
 @Slf4j
 @Service
@@ -42,7 +42,6 @@ public class ImportCsvBarDataUseCase {
 
   static {
     CSV_MAPPER = new CsvMapper();
-    CSV_MAPPER.registerModule(new JavaTimeModule());
   }
 
   private final SandboxAppProperties sandboxAppProperties;
@@ -208,7 +207,7 @@ public class ImportCsvBarDataUseCase {
         barDataRepository.bulkLoadRsi(rsiBuffer);
       }
 
-    } catch (IOException e) {
+    } catch (JacksonException e) {
       throw new SandboxApiException("CSV読み込みに失敗しました", e);
     }
 

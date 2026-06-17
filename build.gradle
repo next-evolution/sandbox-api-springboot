@@ -1,6 +1,6 @@
 plugins {
     id 'java-library'
-    id 'org.springframework.boot' version '3.4.5'
+    id 'org.springframework.boot' version '4.0.7'
     id 'io.spring.dependency-management' version '1.1.7'
     id 'checkstyle'
 }
@@ -32,36 +32,13 @@ subprojects {
 
     dependencyManagement {
         imports {
-            mavenBom "org.springframework.boot:spring-boot-dependencies:3.4.5"
+            mavenBom "org.springframework.boot:spring-boot-dependencies:4.0.7"
         }
     }
 
     dependencies {
-        implementation 'com.fasterxml.jackson.core:jackson-annotations:2.17.1'
-
         compileOnly 'org.projectlombok:lombok:1.18.38'
         annotationProcessor 'org.projectlombok:lombok'
-
-        /**
-        implementation 'com.auth0:java-jwt:4.5.0'
-        implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.19.0'
-        implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.20.1'
-
-        implementation 'io.swagger.core.v3:swagger-annotations:2.2.40'
-        implementation 'jakarta.validation:jakarta.validation-api:3.1.1'
-        implementation 'org.apache.poi:poi-ooxml:5.4.1'
-        implementation 'org.jxls:jxls-poi:3.0.0'
-        implementation 'org.jxls:jxls:3.0.0'
-
-        implementation 'org.springframework:spring-context:6.1.7'
-        implementation 'org.springframework:spring-web:6.2.12'
-
-        implementation 'org.springframework.boot:spring-boot-starter-security'
-        implementation 'org.springframework.boot:spring-boot-starter-validation'
-
-        testImplementation 'org.springframework.boot:spring-boot-starter-test'
-        */
-
     }
 
     checkstyle {
@@ -107,7 +84,7 @@ project(":sandbox-api") {
         implementation 'org.springframework.boot:spring-boot-starter-web'
         implementation 'org.springframework.security:spring-security-core'
 
-        implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.8'
+        implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.3'
 
         testImplementation 'org.springframework.boot:spring-boot-starter-test'
     }
@@ -135,11 +112,10 @@ project(":sandbox-application") {
         implementation 'org.springframework:spring-tx'
         implementation 'org.springframework.security:spring-security-core'
 
-        implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.8'
+        implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.3'
 
-        implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-csv'
-        implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
-        implementation 'com.fasterxml.jackson.core:jackson-databind'
+        implementation 'tools.jackson.dataformat:jackson-dataformat-csv'
+        implementation 'tools.jackson.core:jackson-databind'
     }
 }
 
@@ -159,6 +135,7 @@ project(":sandbox-domain") {
         implementation 'org.springframework:spring-context'
         implementation 'org.springframework.security:spring-security-core'
 
+        implementation 'com.fasterxml.jackson.core:jackson-annotations'
 
     }
 }
@@ -179,7 +156,7 @@ project(":sandbox-infrastructure") {
 
 
         implementation 'org.springframework:spring-web'
-        implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.4'
+        implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:4.0.1'
         implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
         implementation 'org.mybatis:mybatis:3.5.19'
