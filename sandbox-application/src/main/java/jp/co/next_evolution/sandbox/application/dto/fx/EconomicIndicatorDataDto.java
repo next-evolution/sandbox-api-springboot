@@ -3,11 +3,6 @@ package jp.co.next_evolution.sandbox.application.dto.fx;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
-import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDateTime;
 import jp.co.next_evolution.sandbox.domain.model.fx.EconomicIndicatorData;
@@ -23,10 +18,7 @@ public record EconomicIndicatorDataDto(
     String importance,
     @Schema(requiredMode = NOT_REQUIRED, description = "説明")
     String description,
-    @Schema(requiredMode = REQUIRED, description = "発表日時", example = "yyyy-MM-dd HH:mm:ss")
-    @JsonSerialize(using = LocalDateTimeSerializer.class)
-    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @Schema(requiredMode = REQUIRED, description = "発表日時", example = "2026-01-02T11:22:33+09:00")
     LocalDateTime publication,
     @Schema(requiredMode = NOT_REQUIRED, description = "発表日")
     String publicationDate,
