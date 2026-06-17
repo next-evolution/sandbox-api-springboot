@@ -86,7 +86,7 @@ project(":sandbox-api") {
     }
 
     bootRun {
-        def envFile = rootProject.file(".env.bootRun")
+        def envFile = rootProject.file(".env")
         if (envFile.exists()) {
             envFile.readLines().each { line ->
                 if (line && !line.startsWith('#')) {
