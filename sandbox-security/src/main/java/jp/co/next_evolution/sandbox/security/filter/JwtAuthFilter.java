@@ -5,8 +5,10 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Optional;
 import jp.co.next_evolution.sandbox.domain.model.auth.AuthUser;
 import jp.co.next_evolution.sandbox.domain.repository.auth.SessionRepository;
+import jp.co.next_evolution.sandbox.domain.repository.user.UserRepository;
 import jp.co.next_evolution.sandbox.security.JwtProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,7 +23,8 @@ import org.springframework.web.filter.OncePerRequestFilter;
 public class JwtAuthFilter extends OncePerRequestFilter {
 
   private final JwtProvider jwtProvider;
-  private final SessionRepository sessionRepository; // Redis セッション確認
+  private final SessionRepository sessionRepository;
+  private final UserRepository userRepository;
 
   @Override
   protected void doFilterInternal(
@@ -30,28 +33,43 @@ public class JwtAuthFilter extends OncePerRequestFilter {
       FilterChain chain
   ) throws ServletException, IOException {
 
-    // 1. Authorization ヘッダーから token 取得
     String token = resolveToken(request);
 
     if (token != null) {
       try {
-        // 2. RS256検証 + audience/issuer/exp チェック → AuthUser 生成（admin=false）
+        // RS256検証 + audience/issuer/exp チェック → AuthUser 生成（admin=false）
         AuthUser jwtAuthUser = jwtProvider.parse(token);
 
-        // 3. Redis から admin フラグ付き AuthUser を取得（ログイン済みの場合）
-        AuthUser authUser = sessionRepository.findBySub(jwtAuthUser.sub())
-            .orElse(jwtAuthUser);
+        // Redis から admin フラグ付き AuthUser を取得
+        Optional<AuthUser> sessionOpt = sessionRepository.findBySub(jwtAuthUser.sub());
 
-        // 4. SecurityContextHolder
+        AuthUser authUser;
+        if (sessionOpt.isPresent()) {
+          authUser = sessionOpt.get();
+          sessionRepository.update(authUser);
+        } else {
+          // セッションなし → sandbox_user から AuthUser を復元（silent login）
+          authUser = userRepository.findByUserId(jwtAuthUser.sub())
+              .map(user -> {
+                AuthUser restored = new AuthUser(
+                    jwtAuthUser.sub(), jwtAuthUser.email(), jwtAuthUser.emailVerified(),
+                    user.isAdmin()
+                );
+                sessionRepository.save(restored);
+                return restored;
+              })
+              .orElse(null);
+        }
+
+        if (authUser == null) {
+          chain.doFilter(request, response);
+          return;
+        }
+
         var auth = new UsernamePasswordAuthenticationToken(
             authUser, null, authUser.getAuthorities()
         );
         SecurityContextHolder.getContext().setAuthentication(auth);
-
-        // 5. session TTL更新
-        sessionRepository.update(authUser);
-
-        // セッションなし → SecurityContext に何もセットしない → 401
 
       } catch (Exception e) {
         log.error("doFilterInternal[{}]{}", request.getServletPath(), e.getMessage());

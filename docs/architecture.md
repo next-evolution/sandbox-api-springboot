@@ -19,10 +19,12 @@ Spring Boot 3 / Java 21 マルチモジュール Gradle プロジェクト。DDD
 ## 認証フロー
 
 1. 全リクエストが `JwtAuthFilter`（OncePerRequestFilter）を通過
-   - RS256 JWT（AWS Cognito）を検証
-   - Redis から `AuthUser`（admin フラグ含む）を取得。セッション未存在の場合は JWT のみの `AuthUser`（`admin=false`）にフォールバック
-   - `SecurityContextHolder` にセット（セッションの有無によらず JWT が有効であればセット）
-   - Redis セッション TTL を更新
+   - RS256 JWT を検証
+   - Redis から `AuthUser`（admin フラグ含む）を取得
+     - **セッションあり**: Redis の `AuthUser` を使い TTL をリセット
+     - **セッションなし**: `sandbox_user` テーブルから `AuthUser` を復元して Redis に保存（silent login）
+     - **DB にも存在しない**: `SecurityContextHolder` に何もセットしない → 401
+   - `SecurityContextHolder` にセット
 2. `AuthInterceptor`（HandlerInterceptor）が `SecurityContextHolder` の `AuthUser` を確認。なければ 401
 3. コントローラーメソッドに `@PublicApi` を付与するとインターセプターの認証チェックをスキップ
 4. `POST /api/v1/auth/login` — JWT のメール情報と BASE64 デコードしたリクエストボディのメールを照合 → DB から `User`（admin フラグ含む）を取得 → `AuthUser` を Redis に保存
