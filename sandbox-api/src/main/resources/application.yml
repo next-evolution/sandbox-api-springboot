@@ -45,8 +45,7 @@ jwt:
   allowedOriginList:
     - ${JWT_ORIGIN1:}
     - ${JWT_ORIGIN2}
-  allowedIssList:
-    - ${JWT_ISSUER1}
+  allowedIss: ${JWT_ISSUER}
   allowedAudienceList:
     - ${JWT_AUDIENCE1:}
     - ${JWT_AUDIENCE2:}
