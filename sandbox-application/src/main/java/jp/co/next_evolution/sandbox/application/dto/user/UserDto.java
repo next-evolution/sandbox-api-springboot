@@ -3,11 +3,6 @@ package jp.co.next_evolution.sandbox.application.dto.user;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
-import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDateTime;
 import jp.co.next_evolution.sandbox.domain.model.user.User;
@@ -23,24 +18,15 @@ public record UserDto(
     String nickName,
     @Schema(requiredMode = REQUIRED, description = "承認フラグ")
     boolean approved,
-    @Schema(requiredMode = NOT_REQUIRED, description = "承認日時", example = "2013-04-08 10:20:30")
-    @JsonSerialize(using = LocalDateTimeSerializer.class)
-    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @Schema(requiredMode = NOT_REQUIRED, description = "承認日時", example = "2013-04-08T10:20:30+09:00")
     LocalDateTime approvedAt,
     @Schema(requiredMode = REQUIRED, description = "管理者フラグ")
     boolean admin,
     @Schema(type = "boolean", requiredMode = REQUIRED, description = "auth0 blocked")
     boolean blocked,
-    @Schema(requiredMode = REQUIRED, description = "新規登録日時", example = "2013-04-08 10:20:30")
-    @JsonSerialize(using = LocalDateTimeSerializer.class)
-    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @Schema(requiredMode = REQUIRED, description = "新規登録日時", example = "2013-04-08T10:20:30+09:00")
     LocalDateTime createdAt,
-    @Schema(requiredMode = NOT_REQUIRED, description = "更新日時", example = "2013-04-08 10:20:30")
-    @JsonSerialize(using = LocalDateTimeSerializer.class)
-    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @Schema(requiredMode = NOT_REQUIRED, description = "更新日時", example = "2013-04-08T10:20:30+09:00")
     LocalDateTime updatedAt
 ) {
 

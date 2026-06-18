@@ -4,10 +4,8 @@ import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
-@Component
 @Getter
 @Setter
 @ConfigurationProperties("jwt")
@@ -15,7 +13,7 @@ public class JwtConfig {
 
   private List<String> allowedOriginList;
 
-  private List<String> allowedIssList;
+  private String allowedIss;
 
   private List<String> allowedAudienceList;
 

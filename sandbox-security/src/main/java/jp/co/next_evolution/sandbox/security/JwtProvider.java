@@ -14,6 +14,7 @@ import org.springframework.security.oauth2.jwt.JwtDecoders;
 import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.security.oauth2.jwt.JwtIssuerValidator;
 import org.springframework.security.oauth2.jwt.JwtTimestampValidator;
+import org.springframework.security.oauth2.jwt.JwtTypeValidator;
 import org.springframework.security.oauth2.jwt.JwtValidationException;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.stereotype.Component;
@@ -32,7 +33,7 @@ public class JwtProvider {
 
     // 1. JWKS URI から公開鍵を自動取得するデコーダを構築
     NimbusJwtDecoder decoder =
-        JwtDecoders.fromIssuerLocation(jwtConfig.getAllowedIssList().getFirst());
+        JwtDecoders.fromIssuerLocation(jwtConfig.getAllowedIss());
 
     // 2. audience バリデーター（カスタム実装）
     OAuth2TokenValidator<Jwt> audienceValidator = jwt -> {
@@ -50,8 +51,9 @@ public class JwtProvider {
 
     OAuth2TokenValidator<Jwt> validators =
         new DelegatingOAuth2TokenValidator<>(
-            new JwtIssuerValidator(jwtConfig.getAllowedIssList().getFirst()),
+            new JwtIssuerValidator(jwtConfig.getAllowedIss()),
             new JwtTimestampValidator(),
+            JwtTypeValidator.jwt(),
             audienceValidator
         );
 

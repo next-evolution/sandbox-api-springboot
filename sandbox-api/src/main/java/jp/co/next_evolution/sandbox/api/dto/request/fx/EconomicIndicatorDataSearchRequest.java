@@ -3,10 +3,6 @@ package jp.co.next_evolution.sandbox.api.dto.request.fx;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
-import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDate;
 import jp.co.next_evolution.sandbox.api.dto.request.ApiSearchRequest;
@@ -30,8 +26,6 @@ public class EconomicIndicatorDataSearchRequest extends ApiSearchRequest {
   private boolean sortAsc;
 
   @Schema(requiredMode = NOT_REQUIRED, description = "発表日(基準日)", example = "yyyy-MM-dd")
-  @JsonSerialize(using = LocalDateSerializer.class)
-  @JsonDeserialize(using = LocalDateDeserializer.class)
   @JsonFormat(pattern = "yyyy-MM-dd")
   private LocalDate publicationBaseDate;
 

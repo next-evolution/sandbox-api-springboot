@@ -1,19 +1,20 @@
 package jp.co.next_evolution.sandbox.api.config;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
-import org.springframework.boot.autoconfigure.jackson.Jackson2ObjectMapperBuilderCustomizer;
+import org.springframework.boot.jackson.autoconfigure.JsonMapperBuilderCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ValueDeserializer;
+import tools.jackson.databind.ValueSerializer;
+import tools.jackson.databind.module.SimpleModule;
 
 @Configuration
 public class JacksonConfig {
@@ -23,13 +24,16 @@ public class JacksonConfig {
       DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssXXX");
 
   @Bean
-  public Jackson2ObjectMapperBuilderCustomizer jacksonCustomizer() {
-    return builder -> builder
-        .serializers(new LocalDateTimeJstSerializer())
-        .deserializers(new LocalDateTimeJstDeserializer());
+  public JsonMapperBuilderCustomizer jacksonCustomizer() {
+    return builder -> {
+      SimpleModule module = new SimpleModule();
+      module.addSerializer(new LocalDateTimeJstSerializer());
+      module.addDeserializer(LocalDateTime.class, new LocalDateTimeJstDeserializer());
+      builder.addModule(module);
+    };
   }
 
-  static class LocalDateTimeJstSerializer extends JsonSerializer<LocalDateTime> {
+  static class LocalDateTimeJstSerializer extends ValueSerializer<LocalDateTime> {
 
     @Override
     public Class<LocalDateTime> handledType() {
@@ -37,13 +41,13 @@ public class JacksonConfig {
     }
 
     @Override
-    public void serialize(LocalDateTime value, JsonGenerator gen, SerializerProvider provider)
-        throws IOException {
+    public void serialize(LocalDateTime value, JsonGenerator gen, SerializationContext ctxt)
+        throws JacksonException {
       gen.writeString(value.atOffset(JST).format(FORMATTER));
     }
   }
 
-  static class LocalDateTimeJstDeserializer extends JsonDeserializer<LocalDateTime> {
+  static class LocalDateTimeJstDeserializer extends ValueDeserializer<LocalDateTime> {
 
     @Override
     public Class<?> handledType() {
@@ -52,8 +56,8 @@ public class JacksonConfig {
 
     @Override
     public LocalDateTime deserialize(JsonParser p, DeserializationContext ctxt)
-        throws IOException {
-      return OffsetDateTime.parse(p.getText(), FORMATTER).toLocalDateTime();
+        throws JacksonException {
+      return OffsetDateTime.parse(p.getString(), FORMATTER).toLocalDateTime();
     }
   }
 
