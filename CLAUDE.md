@@ -176,6 +176,12 @@ Java ファイルを編集したら必ず実行し、エラーがゼロになっ
 | import | ワイルドカード（`*`）禁止。`STATIC` → `THIRD_PARTY_PACKAGE` の順でアルファベット昇順 |
 | 未使用 import | Checkstyle 非対象だが必ず削除する |
 
+### DTO のプリミティブ型
+
+request/response で同じ DTO（record を含む）を使う場合、プリミティブ型（`short`, `int`, `long`, `boolean` など）を使わずラッパー型（`Short`, `Integer`, `Long`, `Boolean` など）を使う。
+
+Java record では JSON にフィールドが存在しない場合でも Jackson が canonical constructor に `null` を渡す。プリミティブは `null` 不可なので 500 エラーになる。
+
 ### 認証フロー（概要）
 
 詳細は [docs/architecture.md](docs/architecture.md) 参照。

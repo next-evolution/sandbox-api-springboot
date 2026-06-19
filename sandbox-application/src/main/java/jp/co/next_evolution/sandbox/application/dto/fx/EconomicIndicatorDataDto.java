@@ -25,7 +25,7 @@ public record EconomicIndicatorDataDto(
     @Schema(requiredMode = NOT_REQUIRED, description = "発表時刻")
     String publicationTime,
     @Schema(requiredMode = NOT_REQUIRED, description = "曜日")
-    short dayOfWeek,
+    Short dayOfWeek,
     @Schema(requiredMode = NOT_REQUIRED, description = "サブタイトル")
     String subTitle,
     @Schema(requiredMode = REQUIRED, description = "実績値")
