@@ -11,12 +11,13 @@ import org.springframework.security.core.userdetails.UserDetails;
 public record AuthUser(
     String sub,
     String email,
-    boolean emailVerified,
-    boolean admin
+    Boolean emailVerified,
+    Boolean admin
 ) implements UserDetails {
 
+  @JsonIgnore
   public boolean isAdmin() {
-    return admin;
+    return Boolean.TRUE.equals(admin);
   }
 
   @JsonIgnore
@@ -34,7 +35,7 @@ public record AuthUser(
   @JsonIgnore
   @Override
   public boolean isEnabled() {
-    return emailVerified;
+    return Boolean.TRUE.equals(emailVerified);
   }
 
   @JsonIgnore
