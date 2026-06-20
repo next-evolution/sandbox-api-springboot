@@ -50,7 +50,7 @@ public class RedisSessionRepositoryImpl implements SessionRepository {
 
   @Override public void update(AuthUser authUser) {
     String key = toKey(authUser.sub());
-    if (redisTemplateAuthUser.hasKey(toKey(key))) {
+    if (Boolean.TRUE.equals(redisTemplateAuthUser.hasKey(key))) {
       // TTL 設定（ログインのたびにリセット）
       redisTemplateAuthUser.expire(key, sessionTtl, TimeUnit.SECONDS);
     }
