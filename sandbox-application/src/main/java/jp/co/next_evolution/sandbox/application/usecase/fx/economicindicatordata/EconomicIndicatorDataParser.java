@@ -46,6 +46,7 @@ public class EconomicIndicatorDataParser {
     List<EconomicIndicatorData> resultList = new ArrayList<>();
 
     for (String line : readLines(path)) {
+      line = applyStrip(line);
       if (PTN_DATE.matcher(line).find()) {
         baseDate = toDate(year, line);
       } else {
@@ -131,6 +132,13 @@ public class EconomicIndicatorDataParser {
             StringUtils.hasText(elem[6]) ? elem[6] : "-", unitOfValue))
         .build();
 
+  }
+
+  private String applyStrip(String line) {
+    for (String keyword : sandboxAppProperties.getIndicatorStripList()) {
+      line = line.replace(keyword, "");
+    }
+    return line;
   }
 
   private boolean isSkip(String line) {

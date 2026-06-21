@@ -62,6 +62,9 @@ sandbox:
   app:
     import-check-skip: false
     csv-bulk-load-size: 1000
+    indicator-strip-list: 
+      - "植田和男"
+      - "黒田東彦"
     indicator-exclude-list:
       - "本日掲載の指標はありません"
       - "休場"
