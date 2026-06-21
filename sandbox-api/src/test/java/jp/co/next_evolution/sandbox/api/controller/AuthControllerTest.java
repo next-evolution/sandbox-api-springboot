@@ -39,7 +39,7 @@ class AuthControllerTest {
 
   @Test
   void loginReturnsOkWhenUserExists() {
-    AuthUser authUser = new AuthUser("sub-123", "test@example.com", true, false);
+    AuthUser authUser = new AuthUser("sub-123", "test@example.com", true, false, true);
     LoginRequest req = new LoginRequest();
     UserDto userDto = new UserDto(1L, "sub-123", "test@example.com",
         "TestUser", true, null, false, false, null, null);
@@ -55,7 +55,7 @@ class AuthControllerTest {
 
   @Test
   void loginReturnsWarnWhenUserIsNull() {
-    AuthUser authUser = new AuthUser("sub-123", "test@example.com", true, false);
+    AuthUser authUser = new AuthUser("sub-123", "test@example.com", true, false, true);
     LoginRequest req = new LoginRequest();
     given(loginUseCase.execute(any())).willReturn(null);
 
@@ -70,7 +70,7 @@ class AuthControllerTest {
   @Test
   void logoutReturnsOk() {
     LogoutRequest req = new LogoutRequest();
-    AuthUser authUser = new AuthUser("sub-123", "test@example.com", true, false);
+    AuthUser authUser = new AuthUser("sub-123", "test@example.com", true, false, true);
 
     ResponseEntity<ApiResponse> response = controller.logout(req, authUser, httpSession);
 

@@ -2,9 +2,11 @@ package jp.co.next_evolution.sandbox.domain.model.auth;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -12,12 +14,16 @@ public record AuthUser(
     String sub,
     String email,
     Boolean emailVerified,
-    Boolean admin
+    Boolean admin,
+    Boolean approved
 ) implements UserDetails {
 
-  @JsonIgnore
   public boolean isAdmin() {
     return Boolean.TRUE.equals(admin);
+  }
+
+  public boolean isApproved() {
+    return Boolean.TRUE.equals(approved);
   }
 
   @JsonIgnore
@@ -41,7 +47,14 @@ public record AuthUser(
   @JsonIgnore
   @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {
-    return List.of();
+    List<SimpleGrantedAuthority> authorities = new ArrayList<>();
+    if (isApproved()) {
+      authorities.add(new SimpleGrantedAuthority("ROLE_MEMBER"));
+    }
+    if (isAdmin()) {
+      authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
+    }
+    return authorities;
   }
 
 }

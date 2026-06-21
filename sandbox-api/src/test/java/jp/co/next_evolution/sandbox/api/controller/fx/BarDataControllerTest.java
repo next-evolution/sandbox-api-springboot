@@ -61,7 +61,7 @@ class BarDataControllerTest {
 
   @Test
   void importCsvReturnsOk() throws Exception {
-    AuthUser authUser = new AuthUser("sub-123", "test@example.com", true, false);
+    AuthUser authUser = new AuthUser("sub-123", "test@example.com", true, false, true);
     BarDataImportResult importResult = new BarDataImportResult();
     given(mockFile.getInputStream()).willReturn(InputStream.nullInputStream());
     given(mockFile.getOriginalFilename()).willReturn("test.csv");

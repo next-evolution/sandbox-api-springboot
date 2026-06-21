@@ -53,7 +53,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
               .map(user -> {
                 AuthUser restored = new AuthUser(
                     jwtAuthUser.sub(), jwtAuthUser.email(), jwtAuthUser.emailVerified(),
-                    user.isAdmin()
+                    user.isAdmin(), user.isApproved()
                 );
                 sessionRepository.save(restored);
                 return restored;

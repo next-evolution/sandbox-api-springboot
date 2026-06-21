@@ -101,7 +101,7 @@ class EconomicIndicatorDataControllerTest {
 
   @Test
   void importTextReturnsOk() throws Exception {
-    AuthUser authUser = new AuthUser("sub-123", "test@example.com", true, false);
+    AuthUser authUser = new AuthUser("sub-123", "test@example.com", true, false, true);
     given(mockFile.getOriginalFilename()).willReturn("test.txt");
     given(mockFile.getInputStream()).willReturn(InputStream.nullInputStream());
     given(mockFile.getSize()).willReturn(100L);

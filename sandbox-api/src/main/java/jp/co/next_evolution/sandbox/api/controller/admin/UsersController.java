@@ -15,11 +15,11 @@ import jp.co.next_evolution.sandbox.application.usecase.user.ApproveUserUseCase;
 import jp.co.next_evolution.sandbox.application.usecase.user.BlockUserUseCase;
 import jp.co.next_evolution.sandbox.application.usecase.user.GrantAdminUseCase;
 import jp.co.next_evolution.sandbox.application.usecase.user.SearchUsersUseCase;
-import jp.co.next_evolution.sandbox.domain.exception.ForbiddenException;
 import jp.co.next_evolution.sandbox.domain.model.auth.AuthUser;
 import jp.co.next_evolution.sandbox.domain.model.user.UserId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -42,14 +42,10 @@ public class UsersController {
 
   private final GrantAdminUseCase grantAdminUseCase;
 
+  @PreAuthorize("hasRole('ADMIN')")
   @PostMapping
   public ResponseEntity<UserSearchResponse> search(
-      @RequestBody @Validated UserSearchRequest req,
-      @AuthenticationPrincipal AuthUser authUser) {
-
-    if (!authUser.isAdmin()) {
-      throw new ForbiddenException("管理者用APIです");
-    }
+      @RequestBody @Validated UserSearchRequest req) {
 
     SearchUsersUseCase.SearchResult result = searchUsersUseCase.execute(
         new SearchUsersCommand(req.getEmailAddress(), req.getApproved(), req.getPage(),
@@ -66,14 +62,11 @@ public class UsersController {
 
   }
 
+  @PreAuthorize("hasRole('ADMIN')")
   @PutMapping("/approved/{userId}")
   public ResponseEntity<UserResponse> approved(
       @PathVariable(name = "userId") String userIdBase64,
       @AuthenticationPrincipal AuthUser authUser) {
-
-    if (!authUser.isAdmin()) {
-      throw new ForbiddenException("管理者用APIです");
-    }
 
     String userId = UserId.decodeUserIdValue(userIdBase64);
     UserDto result = approveUserUseCase.execute(new ApproveUserCommand(userId, authUser.sub()));
@@ -83,15 +76,12 @@ public class UsersController {
 
   }
 
+  @PreAuthorize("hasRole('ADMIN')")
   @PutMapping("/block/{userId}")
   public ResponseEntity<UserResponse> block(
       @PathVariable(name = "userId") String userIdBase64,
       @RequestBody @Validated UserBlockRequest req,
       @AuthenticationPrincipal AuthUser authUser) {
-
-    if (!authUser.isAdmin()) {
-      throw new ForbiddenException("管理者用APIです");
-    }
 
     String userId = UserId.decodeUserIdValue(userIdBase64);
     UserDto result = blockUserUseCase.execute(
@@ -102,15 +92,12 @@ public class UsersController {
 
   }
 
+  @PreAuthorize("hasRole('ADMIN')")
   @PutMapping("/admin/{userId}")
   public ResponseEntity<UserResponse> grantAdmin(
       @PathVariable(name = "userId") String userIdBase64,
       @RequestBody @Validated UserAdminRequest req,
       @AuthenticationPrincipal AuthUser authUser) {
-
-    if (!authUser.isAdmin()) {
-      throw new ForbiddenException("管理者用APIです");
-    }
 
     String userId = UserId.decodeUserIdValue(userIdBase64);
     UserDto result = grantAdminUseCase.execute(
