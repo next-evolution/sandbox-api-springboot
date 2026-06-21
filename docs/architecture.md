@@ -1,6 +1,6 @@
 # アーキテクチャ詳細
 
-Spring Boot 3 / Java 21 マルチモジュール Gradle プロジェクト。DDD（ドメイン駆動設計）に基づく厳格なレイヤー分離。
+Spring Boot 4 / Java 21 マルチモジュール Gradle プロジェクト。DDD（ドメイン駆動設計）に基づく厳格なレイヤー分離。
 
 ---
 
@@ -12,7 +12,7 @@ Spring Boot 3 / Java 21 マルチモジュール Gradle プロジェクト。DDD
 | `sandbox-application` | ユースケース（`*UseCase.java`）、コマンド、DTO。`sandbox-domain` のみに依存。各ユースケースは `@Service` クラスで `execute()` メソッドを持つ。 |
 | `sandbox-infrastructure` | リポジトリ実装（`*RepositoryImpl`）、MyBatis マッパー、Redis 設定。 |
 | `sandbox-api` | REST コントローラー、リクエスト/レスポンス DTO、`GlobalExceptionHandler`。実行可能 JAR を生成。 |
-| `sandbox-security` | JWT フィルター（`JwtAuthFilter`）、認証インターセプター（`AuthInterceptor`）、Spring Security 設定。`sandbox-domain` に依存。 |
+| `sandbox-security` | JWT フィルター（`JwtAuthFilter`）、Spring Security 設定。`sandbox-domain` に依存。 |
 
 ---
 

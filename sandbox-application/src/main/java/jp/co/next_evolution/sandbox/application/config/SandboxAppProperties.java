@@ -15,6 +15,8 @@ public class SandboxAppProperties {
 
   private List<String> indicatorExcludeList = new ArrayList<>();
 
+  private List<String> indicatorStripList = new ArrayList<>();
+
   private int csvBulkLoadSize;
 
   private boolean importCheckSkip;
