@@ -45,7 +45,8 @@ public class LoginUseCase {
     // 5. admin フラグ付き AuthUser を Redis に保存
     AuthUser authUserWithAdmin = new AuthUser(
         authUser.sub(), authUser.email(), authUser.emailVerified(),
-        user.map(User::isAdmin).orElse(false)
+        user.map(User::isAdmin).orElse(false),
+        user.map(User::isApproved).orElse(false)
     );
     sessionRepository.save(authUserWithAdmin);
 

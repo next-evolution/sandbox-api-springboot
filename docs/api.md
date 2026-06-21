@@ -50,7 +50,8 @@
 ### 認証
 
 - 全エンドポイントで JWT（Authorization ヘッダー）が必要
-- `@PublicApi` が付いたエンドポイントのみ認証不要（下表で「公開」と表記）
+- `/v1/fx/master-list/**` のみ認証不要（`SecurityConfig` の `permitAll` で制御。下表で「公開」と表記）
+- 管理者専用エンドポイントは `@PreAuthorize("hasRole('ADMIN')")` で制御（非管理者は 403）
 
 ---
 

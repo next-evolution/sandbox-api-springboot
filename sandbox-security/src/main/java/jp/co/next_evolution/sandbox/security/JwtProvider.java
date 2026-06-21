@@ -86,7 +86,7 @@ public class JwtProvider {
       throw new AuthenticationException("Required JWT claims missing");
     }
 
-    return new AuthUser(sub, email, emailVerified, false);
+    return new AuthUser(sub, email, emailVerified, false, false);
   }
 
 }
