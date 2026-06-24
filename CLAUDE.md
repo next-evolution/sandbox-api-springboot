@@ -187,5 +187,6 @@ Java record では JSON にフィールドが存在しない場合でも Jackson
 詳細は [docs/architecture.md](docs/architecture.md) 参照。
 
 1. `JwtAuthFilter` — RS256 JWT 検証 → Redis から `AuthUser`（admin フラグ含む）を取得 → `SecurityContextHolder` にセット
-2. `AuthInterceptor` — `AuthUser` がなければ 401
-3. `@PublicApi` — インターセプターの認証チェックをスキップ
+2. `SecurityFilterChain` — `hasRole("MEMBER")` を満たさなければ 401／403
+   - `/v1/fx/master-list/**` — `permitAll`（認証不要）
+   - 管理者専用エンドポイント — `@PreAuthorize("hasRole('ADMIN')")`
