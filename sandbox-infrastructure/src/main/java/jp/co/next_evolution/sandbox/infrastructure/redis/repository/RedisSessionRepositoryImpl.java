@@ -1,7 +1,7 @@
 package jp.co.next_evolution.sandbox.infrastructure.redis.repository;
 
+import java.time.Duration;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 import jp.co.next_evolution.sandbox.domain.model.auth.AuthUser;
 import jp.co.next_evolution.sandbox.domain.repository.auth.SessionRepository;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +27,7 @@ public class RedisSessionRepositoryImpl implements SessionRepository {
     redisTemplateAuthUser.opsForValue().set(key, authUser);
 
     // TTL 設定（ログインのたびにリセット）
-    redisTemplateAuthUser.expire(key, sessionTtl, TimeUnit.SECONDS);
+    redisTemplateAuthUser.expire(key, Duration.ofSeconds(sessionTtl));
   }
 
   @Override
@@ -52,7 +52,7 @@ public class RedisSessionRepositoryImpl implements SessionRepository {
     String key = toKey(authUser.sub());
     if (Boolean.TRUE.equals(redisTemplateAuthUser.hasKey(key))) {
       // TTL 設定（ログインのたびにリセット）
-      redisTemplateAuthUser.expire(key, sessionTtl, TimeUnit.SECONDS);
+      redisTemplateAuthUser.expire(key, Duration.ofSeconds(sessionTtl));
     }
   }
 

@@ -1,9 +1,9 @@
 package jp.co.next_evolution.sandbox.infrastructure.external;
 
 import java.math.BigDecimal;
+import java.time.Duration;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import jp.co.next_evolution.sandbox.domain.model.KeyValue;
 import jp.co.next_evolution.sandbox.domain.model.fx.SymbolType;
@@ -58,7 +58,7 @@ public class GaitameRateService {
           redisTemplate.opsForValue()
                        .set(String.format("price:%s_%s", rate.getPair(), contractHm),
                             rate.getOpen().toPlainString(),
-                            60, TimeUnit.MINUTES);
+                            Duration.ofMinutes(60));
         }
       }
 
