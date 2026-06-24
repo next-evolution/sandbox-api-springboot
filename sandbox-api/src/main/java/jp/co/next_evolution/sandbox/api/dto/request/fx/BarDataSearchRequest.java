@@ -23,12 +23,12 @@ public class BarDataSearchRequest extends ApiSearchRequest {
   @Pattern(regexp = "[A-Z0-9]{3,6}|[A-Z]{3}", message = "input format example USDJPY, DXY ")
   private String symbol;
 
-  @Schema(description = "barDateFrom", example = "yyyyMMdd", requiredMode = NOT_REQUIRED)
-  @Pattern(regexp = "(^$|[0-9]{8})", message = "input format yyyyMMdd")
+  @Schema(description = "barDateFrom", example = "20260123", requiredMode = NOT_REQUIRED)
+  @Pattern(regexp = "(^$|[0-9]{8})", message = "input format 20260123")
   private String barDateFrom;
 
-  @Schema(description = "barDateTo", example = "yyyyMMdd", requiredMode = NOT_REQUIRED)
-  @Pattern(regexp = "(^$|[0-9]{8})", message = "input format yyyyMMdd")
+  @Schema(description = "barDateTo", example = "20260123", requiredMode = NOT_REQUIRED)
+  @Pattern(regexp = "(^$|[0-9]{8})", message = "input format 20260123")
   private String barDateTo;
 
   @Schema(description = "sort asc", requiredMode = NOT_REQUIRED)

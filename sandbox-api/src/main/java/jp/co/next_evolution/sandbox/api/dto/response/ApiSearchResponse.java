@@ -12,7 +12,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 public class ApiSearchResponse {
 
-  @Schema(requiredMode = REQUIRED, description = "処理結果", type = "integer")
+  @Schema(requiredMode = REQUIRED, description = "処理結果", implementation = Integer.class)
   private ReturnCode returnCode;
 
   @Schema(requiredMode = NOT_REQUIRED, description = "message")

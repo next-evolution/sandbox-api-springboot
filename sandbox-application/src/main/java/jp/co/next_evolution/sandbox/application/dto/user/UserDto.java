@@ -10,7 +10,7 @@ import jp.co.next_evolution.sandbox.domain.model.user.User;
 public record UserDto(
     @Schema(requiredMode = REQUIRED, description = "ID(Number)", example = "999")
     Long id,
-    @Schema(requiredMode = REQUIRED, description = "ユーザID(cognito sub)", example = "1aaaaaa1-2bb2-3cc3-4dd4-5eeeeeeeeee5")
+    @Schema(requiredMode = REQUIRED, description = "ユーザID(Cognito sub)", example = "1aaaaaa1-2bb2-3cc3-4dd4-5eeeeeeeeee5")
     String userId,
     @Schema(requiredMode = REQUIRED, description = "email", example = "account@domain.com")
     String emailAddress,
@@ -18,15 +18,15 @@ public record UserDto(
     String nickName,
     @Schema(requiredMode = REQUIRED, description = "承認フラグ")
     boolean approved,
-    @Schema(requiredMode = NOT_REQUIRED, description = "承認日時", example = "2013-04-08T10:20:30+09:00")
+    @Schema(requiredMode = NOT_REQUIRED, description = "承認日時", example = "2026-01-23T12:34:56+09:00")
     LocalDateTime approvedAt,
     @Schema(requiredMode = REQUIRED, description = "管理者フラグ")
     boolean admin,
-    @Schema(type = "boolean", requiredMode = REQUIRED, description = "auth0 blocked")
+    @Schema(requiredMode = REQUIRED, description = "auth0 blocked")
     boolean blocked,
-    @Schema(requiredMode = REQUIRED, description = "新規登録日時", example = "2013-04-08T10:20:30+09:00")
+    @Schema(requiredMode = REQUIRED, description = "新規登録日時", example = "2026-01-23T12:34:56+09:00")
     LocalDateTime createdAt,
-    @Schema(requiredMode = NOT_REQUIRED, description = "更新日時", example = "2013-04-08T10:20:30+09:00")
+    @Schema(requiredMode = NOT_REQUIRED, description = "更新日時", example = "2026-01-23T12:34:56+09:00")
     LocalDateTime updatedAt
 ) {
 

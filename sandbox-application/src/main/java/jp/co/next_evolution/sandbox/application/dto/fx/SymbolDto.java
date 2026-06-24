@@ -9,17 +9,17 @@ import jp.co.next_evolution.sandbox.domain.model.fx.Symbol;
 import jp.co.next_evolution.sandbox.domain.model.fx.SymbolType;
 
 public record SymbolDto(
-    @Schema(type = "string", requiredMode = REQUIRED, description = "symbol", example = "USDJPY")
+    @Schema(requiredMode = REQUIRED, description = "symbol", example = "USDJPY")
     String symbol,
-    @Schema(type = "string", requiredMode = REQUIRED, description = "symbol", example = "Trade|Analyze")
+    @Schema(requiredMode = REQUIRED, description = "symbol", example = "Trade|Analyze")
     String symbolType,
-    @Schema(type = "string", requiredMode = REQUIRED, description = "name", example = "ドル円")
+    @Schema(requiredMode = REQUIRED, description = "name", example = "ドル円")
     String name,
-    @Schema(type = "number", requiredMode = REQUIRED, description = "scale", example = "3")
+    @Schema(requiredMode = REQUIRED, description = "scale", example = "3")
     short validScale,
-    @Schema(type = "number", requiredMode = REQUIRED, description = "targetVolatility", example = "0.005")
+    @Schema(requiredMode = REQUIRED, description = "targetVolatility", example = "0.005")
     BigDecimal targetVolatility,
-    @Schema(type = "number", requiredMode = REQUIRED, description = "sortOrder", example = "100")
+    @Schema(requiredMode = REQUIRED, description = "sortOrder", example = "100")
     int sortOrder
 ) {
 

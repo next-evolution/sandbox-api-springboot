@@ -58,7 +58,7 @@ public class TradeSimulationRequest {
     @Schema(requiredMode = REQUIRED, implementation = TradeType.class)
     private TradeType tradeType;
 
-    @Schema(requiredMode = REQUIRED, example = "2026-01-02T11:22:33+09:00")
+    @Schema(requiredMode = REQUIRED, example = "2026-01-23T12:34:56+09:00")
     private LocalDateTime contractAt;
 
     @Schema(requiredMode = REQUIRED)

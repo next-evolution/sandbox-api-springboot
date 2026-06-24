@@ -32,7 +32,7 @@ public class ZigZagBarDataResponse extends ApiResponse {
 
   @Data
   public static class ZigZagBarData {
-    @Schema(requiredMode = REQUIRED, example = "2026-01-02T11:22:33+09:00")
+    @Schema(requiredMode = REQUIRED, example = "2026-01-23T12:34:56+09:00")
     private LocalDateTime barDateTime;
     @Schema(requiredMode = REQUIRED)
     private BigDecimal openPrice;
