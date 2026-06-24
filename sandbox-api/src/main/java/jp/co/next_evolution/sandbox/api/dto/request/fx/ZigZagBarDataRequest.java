@@ -27,7 +27,7 @@ public class ZigZagBarDataRequest {
   @Positive
   private short depth;
 
-  @Schema(requiredMode = REQUIRED, example = "2026-01-02T11:22:33+09:00")
+  @Schema(requiredMode = REQUIRED, example = "2026-01-23T12:34:56+09:00")
   @NotNull
   private LocalDateTime waveStart;
 

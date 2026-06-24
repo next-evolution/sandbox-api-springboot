@@ -18,7 +18,7 @@ public record EconomicIndicatorDataDto(
     String importance,
     @Schema(requiredMode = NOT_REQUIRED, description = "説明")
     String description,
-    @Schema(requiredMode = REQUIRED, description = "発表日時", example = "2026-01-02T11:22:33+09:00")
+    @Schema(requiredMode = REQUIRED, description = "発表日時", example = "2026-01-23T12:34:56+09:00")
     LocalDateTime publication,
     @Schema(requiredMode = NOT_REQUIRED, description = "発表日")
     String publicationDate,

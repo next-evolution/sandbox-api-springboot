@@ -8,8 +8,8 @@ import jp.co.next_evolution.sandbox.domain.model.fx.SummerTime;
 
 public record SummerTimeDto(
     @Schema(requiredMode = REQUIRED, description = "対象年") short targetYear,
-    @Schema(requiredMode = REQUIRED, description = "適用開始日") LocalDate applyStart,
-    @Schema(requiredMode = REQUIRED, description = "適用終了日") LocalDate applyEnd
+    @Schema(requiredMode = REQUIRED, description = "適用開始日", example = "2026-01-23") LocalDate applyStart,
+    @Schema(requiredMode = REQUIRED, description = "適用終了日", example = "2026-01-23") LocalDate applyEnd
 ) {
 
   public static SummerTimeDto fromDomain(SummerTime entity) {

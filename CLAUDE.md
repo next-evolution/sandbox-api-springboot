@@ -129,9 +129,23 @@ sandbox-api ──→ sandbox-application ──→ sandbox-domain ←──┐
 
 ### 日時フォーマット
 
-- `LocalDateTime` は RFC 3339 形式 `yyyy-MM-dd'T'HH:mm:ssXXX`（例: `2026-01-02T11:22:33+09:00`）
+- `LocalDateTime` は RFC 3339 形式 `yyyy-MM-dd'T'HH:mm:ssXXX`（例: `2026-01-23T12:34:56+09:00`）
 - `JacksonConfig` でグローバル設定済み。DTO に `@JsonFormat` / `@JsonSerialize` / `@JsonDeserialize` を個別付与しない
 - `LocalDate` は対象外（既存の `@JsonFormat(pattern = "yyyy-MM-dd")` をそのまま使用）
+
+### @Schema の type 指定
+
+- 標準 Java 型（`String`、`boolean`、`int`/`short`/`long`、`BigDecimal`、`LocalDateTime` など）には `type = "..."` を付けない。Springdoc が Java 型から正しく推論する。付けると `type: string` に化けるなど誤動作する。
+- Java 型と JSON 型が異なる場合（`@JsonValue` を持つ enum 等）は `implementation = Xxx.class` で明示する。
+
+```java
+// 禁止
+@Schema(type = "integer", ...) private ReturnCode returnCode;
+// 正しい
+@Schema(implementation = Integer.class, ...) private ReturnCode returnCode;
+```
+
+- `@Schema` の `example`（日時）は実際の日付値を入れ、フォーマット文字列（`"yyyy-MM-dd"` 等）は使わない。`LocalDateTime` → `"2026-01-23T12:34:56+09:00"`、`LocalDate` → `"2026-01-23"`、`String`（yyyyMMdd 形式）→ `"20260123"`。
 
 ### userId のデコード
 

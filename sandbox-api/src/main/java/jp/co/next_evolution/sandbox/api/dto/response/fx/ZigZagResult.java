@@ -49,9 +49,9 @@ public class ZigZagResult {
 
   @Data
   public static class Info {
-    @Schema(requiredMode = REQUIRED, example = "2026-01-02T11:22:33+09:00")
+    @Schema(requiredMode = REQUIRED, example = "2026-01-23T12:34:56+09:00")
     private LocalDateTime waveStart;
-    @Schema(requiredMode = REQUIRED, example = "2026-01-02T11:22:33+09:00")
+    @Schema(requiredMode = REQUIRED, example = "2026-01-23T12:34:56+09:00")
     private LocalDateTime waveEnd;
     @Schema(requiredMode = REQUIRED)
     private int wave;
@@ -63,9 +63,9 @@ public class ZigZagResult {
 
   @Data
   public static class InfoSmaFibonacci {
-    @Schema(requiredMode = REQUIRED, example = "2026-01-02T11:22:33+09:00")
+    @Schema(requiredMode = REQUIRED, example = "2026-01-23T12:34:56+09:00")
     private LocalDateTime waveStart;
-    @Schema(requiredMode = REQUIRED, example = "2026-01-02T11:22:33+09:00")
+    @Schema(requiredMode = REQUIRED, example = "2026-01-23T12:34:56+09:00")
     private LocalDateTime waveEnd;
     @Schema(requiredMode = REQUIRED)
     private int wave;
@@ -125,7 +125,7 @@ public class ZigZagResult {
 
   @Data
   public static class FractalWave {
-    @Schema(requiredMode = REQUIRED, example = "2026-01-02T11:22:33+09:00")
+    @Schema(requiredMode = REQUIRED, example = "2026-01-23T12:34:56+09:00")
     private LocalDateTime waveStart;
     @Schema(requiredMode = REQUIRED)
     private int wave;
