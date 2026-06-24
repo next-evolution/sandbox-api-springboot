@@ -1,9 +1,9 @@
 package jp.co.next_evolution.sandbox.infrastructure.repository.fx;
 
 import java.math.BigDecimal;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.concurrent.TimeUnit;
 import jp.co.next_evolution.sandbox.domain.model.fx.trade.PriceInfo;
 import jp.co.next_evolution.sandbox.domain.repository.fx.TradeSimulationRepository;
 import jp.co.next_evolution.sandbox.infrastructure.db.mapper.fx.TradeSimulationMapper;
@@ -62,7 +62,7 @@ public class TradeSimulationRepositoryImpl implements TradeSimulationRepository 
     }
 
     if (price.compareTo(BigDecimal.ZERO) > 0) {
-      redisTemplate.opsForValue().set(redisKey, price.toPlainString(), 60, TimeUnit.MINUTES);
+      redisTemplate.opsForValue().set(redisKey, price.toPlainString(), Duration.ofMinutes(60));
     }
 
     return price;
