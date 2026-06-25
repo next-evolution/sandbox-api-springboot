@@ -12,7 +12,7 @@ import lombok.experimental.SuperBuilder;
 @Getter
 public class UserResponse extends ApiResponse {
 
-  @Schema(description = "ユーザー情報", requiredMode = REQUIRED)
+  @Schema(description = "ユーザー情報")
   private UserDto user;
 
 }
