@@ -2,7 +2,6 @@ package jp.co.next_evolution.sandbox.api.controller;
 
 import jp.co.next_evolution.sandbox.api.dto.request.user.UserRegistrationRequest;
 import jp.co.next_evolution.sandbox.api.dto.request.user.UserUpdateRequest;
-import jp.co.next_evolution.sandbox.api.dto.response.ApiResponse;
 import jp.co.next_evolution.sandbox.api.dto.response.admin.UserResponse;
 import jp.co.next_evolution.sandbox.api.type.ReturnCode;
 import jp.co.next_evolution.sandbox.application.command.user.GetProfileCommand;
@@ -39,18 +38,19 @@ public class UserController {
   private final UpdateUserUseCase updateUserUseCase;
 
   @GetMapping
-  public ResponseEntity<ApiResponse> profile(@AuthenticationPrincipal AuthUser authUser) {
+  public ResponseEntity<UserResponse> profile(@AuthenticationPrincipal AuthUser authUser) {
 
-    return getProfileUseCase.execute(new GetProfileCommand(authUser.sub()))
-                            .map(user -> (ApiResponse) UserResponse.builder()
-                                                                   .returnCode(ReturnCode.Ok)
-                                                                   .user(user)
-                                                                   .build())
-                            .map(ResponseEntity::ok)
-                            .orElse(ResponseEntity.ok(ApiResponse.builder()
-                                                                  .returnCode(ReturnCode.Warn)
-                                                                  .message("利用承認待ちです")
-                                                                  .build()));
+    UserResponse response = getProfileUseCase.execute(new GetProfileCommand(authUser.sub()))
+        .<UserResponse>map(user -> UserResponse.builder()
+            .returnCode(ReturnCode.Ok)
+            .user(user)
+            .build())
+        .orElse(UserResponse.builder()
+            .returnCode(ReturnCode.Warn)
+            .message("利用承認待ちです")
+            .build());
+
+    return ResponseEntity.ok(response);
 
   }
 
