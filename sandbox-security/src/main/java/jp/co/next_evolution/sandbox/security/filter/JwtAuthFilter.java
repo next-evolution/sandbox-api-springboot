@@ -58,7 +58,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 sessionRepository.save(restored);
                 return restored;
               })
-              .orElse(null);
+              // sandbox_user未登録（初回ログイン）でもJWT由来のauthUserにフォールバックする
+              .orElse(jwtAuthUser);
         }
 
         if (authUser == null) {

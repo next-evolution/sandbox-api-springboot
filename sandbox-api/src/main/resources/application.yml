@@ -65,6 +65,8 @@ sandbox:
     indicator-strip-list: 
       - "植田和男"
       - "黒田東彦"
+      - "パウエル"
+      - "ベイリー"
     indicator-exclude-list:
       - "本日掲載の指標はありません"
       - "休場"
