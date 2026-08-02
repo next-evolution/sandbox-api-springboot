@@ -13,6 +13,7 @@
     <if test="countryCode != 'ALL'">
       AND country_code = #{countryCode}
     </if>
+    GROUP BY code, name
     ORDER BY name
   </select>
 
