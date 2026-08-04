@@ -46,7 +46,7 @@
       AND country_code = #{countryCode}
     </if>
     <if test="name != null and name != ''">
-      AND name LIKE '%${name}%'
+      AND name LIKE CONCAT('%', #{name}, '%')
     </if>
   </select>
 
@@ -72,7 +72,7 @@
       AND t.country_code = #{countryCode}
     </if>
     <if test="name != null and name != ''">
-      AND t.name LIKE '%${name}%'
+      AND t.name LIKE CONCAT('%', #{name}, '%')
     </if>
     ORDER BY c.sort_order, t.code
     <bind name="offset" value="(page - 1) * size"/>

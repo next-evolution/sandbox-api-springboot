@@ -29,7 +29,7 @@
     FROM sandbox_user
     WHERE deleted = FALSE
     <if test="emailAddress != null and emailAddress != ''">
-      AND email_address LIKE '%${emailAddress}%'
+      AND email_address LIKE CONCAT('%', #{emailAddress}, '%')
     </if>
     <if test="approved != null">
       AND approved = #{approved}
@@ -51,7 +51,7 @@
     FROM sandbox_user
     WHERE deleted = FALSE
     <if test="emailAddress != null and emailAddress != ''">
-      AND email_address LIKE '%${emailAddress}%'
+      AND email_address LIKE CONCAT('%', #{emailAddress}, '%')
     </if>
     <if test="approved != null">
       AND approved = #{approved}
