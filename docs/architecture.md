@@ -58,5 +58,5 @@ Spring Boot 4 / Java 21 マルチモジュール Gradle プロジェクト。DDD
 
 - ベースパス: `/api`（context-path）、バージョニング: `/v1/...`
 - 基本レスポンスは `ApiResponse` / `ApiSearchResponse` でラップし `ReturnCode` を含む
-- マスター系・一部操作系エンドポイントは生 DTO / `List<T>` / 空ボディ（200 OK）を返す（詳細は `docs/api.md` 参照）
+- マスター系・一部操作系エンドポイントは生 DTO / `List<T>` / 空ボディ（200 OK）を返す（詳細は `claude-code/architecture/api-docs.yaml` 参照）
 - Checkstyle（`checkstyle.xml`）はビルド時に自動実行
