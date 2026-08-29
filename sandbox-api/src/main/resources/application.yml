@@ -43,8 +43,8 @@ springdoc:
 
 jwt:
   allowedOriginList:
-    - ${JWT_ORIGIN1:}
-    - ${JWT_ORIGIN2}
+    - ${CORS_ORIGIN1:}
+    - ${CORS_ORIGIN2}
   allowedIss: ${JWT_ISSUER}
   allowedAudienceList:
     - ${JWT_AUDIENCE1:}
@@ -57,7 +57,7 @@ sandbox:
     gaitame-price-rate: https://navi.gaitame.com
   storage:
     data:
-      bucket: ${BUCKET_NAME:next-evolution}/data
+      bucket: ${STORAGE_BUCKET:next-evolution}/data
       fx: ${APP_NAME:sandbox}/fx
   app:
     import-check-skip: false

@@ -14,6 +14,10 @@ Spring Boot 3 / Java 21 で構築し、**DDD（ドメイン駆動設計）** に
 
 ---
 
+### 0. 前提条件（Claude Code利用時）
+
+`$SANDBOX_HOME` 直下に `claude-code`（横断仕様ドキュメントフォルダ、Google Driveへのシンボリックリンク）が必要です。`CLAUDE.md` の `@../claude-code/...` importの解決に使用されます。
+
 ## アーキテクチャ
 
 ### モジュール構成
@@ -43,7 +47,7 @@ sandbox-api ──→ sandbox-application ──→ sandbox-domain ←──┐
 | ディレクトリ | 用途 |
 |---|---|
 | `local/` | Docker コンテナ共通のボリュームマウント（`storage/`, `tmp/`, `work/`） |
-| `docs/` | API 仕様・アーキテクチャ・開発 Tips |
+| `docs/` | アーキテクチャ・開発 Tips |
 
 > Docker Compose 環境・Bruno テストコレクション・データファイルは [`sandbox-tools`](../sandbox-tools) リポジトリで管理。
 
@@ -61,7 +65,7 @@ sandbox-api ──→ sandbox-application ──→ sandbox-domain ←──┐
 | **ZigZag 分析** | ZigZag 生成・検索・ステータス取得・バーデータ取得 |
 | **トレードシミュレーション** | リスク額・ロット比率・エントリーに基づくシミュレーション |
 
-エンドポイント詳細は [docs/api.md](./docs/api.md) を参照。
+エンドポイント詳細は [api-docs.yaml](../claude-code/architecture/api-docs.yaml)（OpenAPI spec）を参照。起動中は Swagger UI からも参照可能。
 
 ---
 
@@ -90,22 +94,8 @@ docker compose --env-file .env.compose up -d
 cp .env.bootRun.example .env.bootRun
 ```
 
-`build.gradle` が `.env.bootRun` を自動読み込みするため、`source` や `export` は不要です。
-
-| 変数名 | 説明 | 例 |
-|---|---|---|
-| `DB_HOST` | MySQL ホスト | `localhost` |
-| `DB_PORT` | MySQL ポート | `43306` |
-| `DB_SCHEMA` | データベース名 | `sandbox` |
-| `DB_USER` | DB ユーザー | `sandbox_app` |
-| `DB_PASSWORD` | DB パスワード | — |
-| `REDIS_HOST` | Redis ホスト | `localhost` |
-| `REDIS_PORT` | Redis ポート | `46379` |
-| `JWT_ISSUER1` | Cognito URL | `https://cognito-idp.ap-northeast-1.amazonaws.com/...` |
-| `JWT_AUDIENCE1/2/3` | Cognito App Client ID | — |
-| `JWT_ORIGIN1/2` | 許可オリジン | `http://localhost` |
-| `BUCKET_NAME` | S3 バケット名（またはローカルパス） | `../local/storage` |
-| `APP_NAME` | アプリ名（S3 パス用） | `sandbox` |
+* `build.gradle` が `.env.bootRun` を自動読み込みするため、`source` や `export` は不要です。
+* 環境変数 は [env-value.md](../claude-code/architecture/env-value.md) 参照。
 
 ### 3. ビルド & 起動
 
@@ -125,16 +115,7 @@ cp .env.bootRun.example .env.bootRun
 
 ---
 
-## Claude Code カスタムコマンド
-
-| コマンド | 用途 |
-|---|---|
-| `/docs-check` | `docs/*.md` と実装の乖離チェック。コミット前などに手動実行する |
-
----
-
 ## API Documentation
 
-- OpenAPI Spec: [api-docs.yaml](./docs/api-docs.yaml)
-- API Docs: https://next-evolution.github.io/sandbox-api-springboot/
+- OpenAPI Spec: [api-docs.yaml](../claude-code/architecture/api-docs.yaml)
 - 開発 Tips（VS Code 設定など）: [docs/tips.md](./docs/tips.md)

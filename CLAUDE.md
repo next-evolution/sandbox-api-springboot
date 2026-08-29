@@ -15,7 +15,7 @@ Spring Boot 3 / Java 21 で構築された RestAPI。
 | アーキテクチャの制約（依存方向など） | **CLAUDE.md** |
 | ビルド・実行コマンド | **CLAUDE.md** |
 | 重要な落とし穴（Stream、DateTime など） | **CLAUDE.md** |
-| エンドポイント一覧 | `docs/api.md` |
+| エンドポイント一覧 | [api-docs.yaml](../claude-code/architecture/api-docs.yaml)（OpenAPI spec） |
 | アーキテクチャ詳細・認証フロー・ライブラリ | `docs/architecture.md` |
 | タスク指示（step 系） | **プロンプトで渡す** |
 
@@ -25,15 +25,18 @@ Spring Boot 3 / Java 21 で構築された RestAPI。
 
 | 内容 | ファイル |
 |---|---|
-| APIエンドポイント一覧・レスポンス仕様 | [docs/api.md](docs/api.md) |
+| APIエンドポイント一覧・レスポンス仕様 | [api-docs.yaml](../claude-code/architecture/api-docs.yaml)（OpenAPI spec。起動中は Swagger UI からも参照可能） |
 | アーキテクチャ詳細・認証フロー・モジュール構成 | [docs/architecture.md](docs/architecture.md) |
 | VS Code 推奨設定・開発 Tips | [docs/tips.md](docs/tips.md) |
 
-### 利用可能なカスタムコマンド
+`api-docs.yaml` は `OpenApiExportListener`（`sandbox-api/.../config/`）が起動完了時に自動再エクスポートする。手動更新は不要。
 
-| コマンド | 用途 |
-|---|---|
-| `/docs-check` | ドキュメント（`docs/*.md`）と実装の乖離チェック。コミット前などに手動実行する |
+---
+
+## 共通仕様（横断・FE/BE共通の大枠仕様）
+
+@../claude-code/architecture/auth.md
+@../claude-code/architecture/api-design.md
 
 ---
 
@@ -41,14 +44,6 @@ Spring Boot 3 / Java 21 で構築された RestAPI。
 
 知識カットオフ（2025年8月）以降にリリースされたライブラリ・フレームワーク（Spring Boot 4.x など）に
 関する回答は、WebSearch で公式ドキュメントを確認してから回答する。
-
----
-
-## 言語設定
-
-- 常に日本語で会話する
-- コメントも日本語で記述する
-- エラーメッセージの説明も日本語で行う
 
 ---
 
@@ -76,7 +71,9 @@ cp .env.example .env   # 初回のみ・値を実際の環境に合わせて編�
 | `.env.example` | bootRun テンプレート（git 管理対象） |
 | `.env` | bootRun 実際の値（git 除外済み） |
 
-`build.gradle` の `bootRun` タスクが `.env.bootRun` を自動読み込みするため、別途 `export` や `source` は不要。
+- `build.gradle` の `bootRun` タスクが `.env.bootRun` を自動読み込みするため、別途 `export` や `source` は不要。
+- 新しい環境変数を追加・削除・リネームしたら、.env.bootRun.example の該当箇所も同時に更新する。
+- $SANDBOX_HOME/claude-code/architecture/env-value.md も更新する。
 
 ### ローカルインフラ起動
 
@@ -115,12 +112,9 @@ sandbox-api ──→ sandbox-application ──→ sandbox-domain ←──┐
 
 ### エラー型
 
-| 例外クラス | HTTP ステータス |
-|---|---|
-| AuthenticationException | 401 UNAUTHORIZED |
-| ForbiddenException | 403 FORBIDDEN |
-| NotFoundException | 404 NOT FOUND |
-| DuplicateException / InsertException / UpdateException | 400 BAD REQUEST |
+Java の例外クラス: `AuthenticationException` / `ForbiddenException` / `NotFoundException` / `DuplicateException` / `InsertException` / `UpdateException`
+
+HTTP ステータスとの対応は [auth.md](../claude-code/architecture/auth.md) 参照。
 
 ### Stream / Collection
 
@@ -167,11 +161,6 @@ public ResponseEntity<ApiResponse> someAdminApi(@AuthenticationPrincipal AuthUse
     // useCase 実行
 }
 ```
-
-### 環境変数
-
-新しい環境変数を追加・削除・リネームしたら、`.env.bootRun.example` の該当箇所も同時に更新する。
-docker 関連の環境変数は `sandbox-tools/docker/.env.compose.example` を更新する。
 
 ### Checkstyle
 
