@@ -14,7 +14,7 @@ public interface EconomicIndicatorRepository {
 
   Optional<EconomicIndicator> get(String countryCode, String code);
 
-  boolean exists(String countryCode, String name);
+  boolean exists(String code, String countryCode, String name);
 
   int add(EconomicIndicator indicator);
 

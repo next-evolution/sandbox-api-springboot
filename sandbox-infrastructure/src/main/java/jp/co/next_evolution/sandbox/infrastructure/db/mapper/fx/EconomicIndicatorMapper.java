@@ -19,7 +19,7 @@ public interface EconomicIndicatorMapper {
 
   FxEconomicIndicator get(String countryCode, String code);
 
-  boolean exists(String countryCode, String name);
+  boolean exists(String code, String countryCode, String name);
 
   int insert(FxEconomicIndicator indicator);
 
