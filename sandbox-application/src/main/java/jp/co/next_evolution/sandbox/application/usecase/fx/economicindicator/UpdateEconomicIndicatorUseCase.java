@@ -25,7 +25,7 @@ public class UpdateEconomicIndicatorUseCase {
 
     String newCountryCode = dto.countryCode();
     if (!countryCode.equals(newCountryCode)
-        && economicIndicatorRepository.exists(newCountryCode, dto.name())) {
+        && economicIndicatorRepository.exists(code, newCountryCode, dto.name())) {
       throw new DuplicateException(String.format("(%s) %s", newCountryCode, dto.name()));
     }
 

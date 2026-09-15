@@ -19,8 +19,9 @@ public class AddEconomicIndicatorUseCase {
   @Transactional
   public void execute(EconomicIndicatorDto dto) {
 
-    if (economicIndicatorRepository.exists(dto.countryCode(), dto.name())) {
-      throw new DuplicateException(String.format("(%s) %s", dto.countryCode(), dto.name()));
+    if (economicIndicatorRepository.exists(dto.code(), dto.countryCode(), dto.name())) {
+      throw new DuplicateException(
+          String.format("(%s:%s) %s", dto.countryCode(), dto.code(), dto.name()));
     }
 
     LocalDateTime now = LocalDateTime.now();

@@ -108,7 +108,8 @@
       SELECT *
       FROM fx_economic_indicator
       WHERE
-        country_code = #{countryCode}
+        code = #{code}
+        AND country_code = #{countryCode}
         AND name = #{name}
     )
   </select>

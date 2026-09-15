@@ -42,8 +42,8 @@ public class EconomicIndicatorRepositoryImpl implements EconomicIndicatorReposit
   }
 
   @Override
-  public boolean exists(String countryCode, String name) {
-    return economicIndicatorMapper.exists(countryCode, name);
+  public boolean exists(String code, String countryCode, String name) {
+    return economicIndicatorMapper.exists(code, countryCode, name);
   }
 
   @Override
