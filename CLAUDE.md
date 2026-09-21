@@ -15,7 +15,7 @@ Spring Boot 3 / Java 21 で構築された RestAPI。
 | アーキテクチャの制約（依存方向など） | **CLAUDE.md** |
 | ビルド・実行コマンド | **CLAUDE.md** |
 | 重要な落とし穴（Stream、DateTime など） | **CLAUDE.md** |
-| エンドポイント一覧 | [api-docs.yaml](../claude-code/architecture/api-docs.yaml)（OpenAPI spec） |
+| エンドポイント一覧 | [api-docs.yaml](../documents/architecture/api-docs.yaml)（OpenAPI spec） |
 | アーキテクチャ詳細・認証フロー・ライブラリ | `docs/architecture.md` |
 | タスク指示（step 系） | **プロンプトで渡す** |
 
@@ -25,7 +25,7 @@ Spring Boot 3 / Java 21 で構築された RestAPI。
 
 | 内容 | ファイル |
 |---|---|
-| APIエンドポイント一覧・レスポンス仕様 | [api-docs.yaml](../claude-code/architecture/api-docs.yaml)（OpenAPI spec。起動中は Swagger UI からも参照可能） |
+| APIエンドポイント一覧・レスポンス仕様 | [api-docs.yaml](../documents/architecture/api-docs.yaml)（OpenAPI spec。起動中は Swagger UI からも参照可能） |
 | アーキテクチャ詳細・認証フロー・モジュール構成 | [docs/architecture.md](docs/architecture.md) |
 | VS Code 推奨設定・開発 Tips | [docs/tips.md](docs/tips.md) |
 
@@ -35,8 +35,8 @@ Spring Boot 3 / Java 21 で構築された RestAPI。
 
 ## 共通仕様（横断・FE/BE共通の大枠仕様）
 
-@../claude-code/architecture/auth.md
-@../claude-code/architecture/api-design.md
+@../documents/architecture/auth.md
+@../documents/architecture/api-design.md
 
 ---
 
@@ -73,7 +73,7 @@ cp .env.example .env   # 初回のみ・値を実際の環境に合わせて編�
 
 - `build.gradle` の `bootRun` タスクが `.env.bootRun` を自動読み込みするため、別途 `export` や `source` は不要。
 - 新しい環境変数を追加・削除・リネームしたら、.env.bootRun.example の該当箇所も同時に更新する。
-- $SANDBOX_HOME/claude-code/architecture/env-value.md も更新する。
+- $SANDBOX_HOME/documents/architecture/env-value.md も更新する。
 
 ### ローカルインフラ起動
 
@@ -114,7 +114,7 @@ sandbox-api ──→ sandbox-application ──→ sandbox-domain ←──┐
 
 Java の例外クラス: `AuthenticationException` / `ForbiddenException` / `NotFoundException` / `DuplicateException` / `InsertException` / `UpdateException`
 
-HTTP ステータスとの対応は [auth.md](../claude-code/architecture/auth.md) 参照。
+HTTP ステータスとの対応は [auth.md](../documents/architecture/auth.md) 参照。
 
 ### Stream / Collection
 

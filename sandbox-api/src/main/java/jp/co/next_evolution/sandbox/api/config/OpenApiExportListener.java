@@ -10,9 +10,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
 // 起動完了時に、生成済みの OpenAPI 仕様（/v3/api-docs.yaml）を
-// claude-code/architecture/api-docs.yaml へ自動コピーする。
+// documents/architecture/api-docs.yaml へ自動コピーする。
 // gin/laravel 等の他バックエンドが参照する横断の「API共通仕様」を、springboot起動のたびに最新化する目的。
-// SANDBOX_HOME環境変数が未設定、または claude-code/architecture ディレクトリが存在しない環境
+// SANDBOX_HOME環境変数が未設定、または documents/architecture ディレクトリが存在しない環境
 // （他の開発者・CI等）では何もせず起動を継続する。
 @Slf4j
 @Component
@@ -26,7 +26,7 @@ public class OpenApiExportListener implements ApplicationListener<ApplicationRea
       return;
     }
 
-    Path targetPath = Path.of(sandboxHome, "claude-code", "architecture", "api-docs.yaml");
+    Path targetPath = Path.of(sandboxHome, "documents", "architecture", "api-docs.yaml");
     if (!Files.isDirectory(targetPath.getParent())) {
       log.debug("エクスポート先ディレクトリが存在しないためスキップします: {}", targetPath.getParent());
       return;

@@ -14,9 +14,9 @@ Spring Boot 3 / Java 21 で構築し、**DDD（ドメイン駆動設計）** に
 
 ---
 
-### 0. 前提条件（Claude Code利用時）
+## 0. 前提条件（Claude Code利用時）
 
-`$SANDBOX_HOME` 直下に `claude-code`（横断仕様ドキュメントフォルダ、Google Driveへのシンボリックリンク）が必要です。`CLAUDE.md` の `@../claude-code/...` importの解決に使用されます。
+`$SANDBOX_HOME` 直下に `documents`（横断仕様ドキュメントフォルダ、Google Driveへのシンボリックリンク）が必要です。`CLAUDE.md` の `@../documents/...` importの解決に使用されます。
 
 ## アーキテクチャ
 
@@ -65,7 +65,7 @@ sandbox-api ──→ sandbox-application ──→ sandbox-domain ←──┐
 | **ZigZag 分析** | ZigZag 生成・検索・ステータス取得・バーデータ取得 |
 | **トレードシミュレーション** | リスク額・ロット比率・エントリーに基づくシミュレーション |
 
-エンドポイント詳細は [api-docs.yaml](../claude-code/architecture/api-docs.yaml)（OpenAPI spec）を参照。起動中は Swagger UI からも参照可能。
+エンドポイント詳細は [api-docs.yaml](../documents/architecture/api-docs.yaml)（OpenAPI spec）を参照。起動中は Swagger UI からも参照可能。
 
 ---
 
@@ -95,7 +95,7 @@ cp .env.bootRun.example .env.bootRun
 ```
 
 * `build.gradle` が `.env.bootRun` を自動読み込みするため、`source` や `export` は不要です。
-* 環境変数 は [env-value.md](../claude-code/architecture/env-value.md) 参照。
+* 環境変数 は [env-value.md](../documents/architecture/env-value.md) 参照。
 
 ### 3. ビルド & 起動
 
@@ -117,5 +117,5 @@ cp .env.bootRun.example .env.bootRun
 
 ## API Documentation
 
-- OpenAPI Spec: [api-docs.yaml](../claude-code/architecture/api-docs.yaml)
+- OpenAPI Spec: [api-docs.yaml](../documents/architecture/api-docs.yaml)
 - 開発 Tips（VS Code 設定など）: [docs/tips.md](./docs/tips.md)
