@@ -193,3 +193,9 @@ Java record では JSON にフィールドが存在しない場合でも Jackson
 2. `SecurityFilterChain` — `hasRole("MEMBER")` を満たさなければ 401／403
    - `/v1/fx/master-list/**` — `permitAll`（認証不要）
    - 管理者専用エンドポイント — `@PreAuthorize("hasRole('ADMIN')")`
+
+### CSRF Cookie の Path（落とし穴）
+
+`CookieCsrfTokenRepository` はデフォルトで Cookie の Path を `server.servlet.context-path`（`/api`）に合わせて発行する。SPA の実ページは `/` 配下で動くため、`Path=/api` のままだと `document.cookie` 経由で JS から読めず、axios が `X-XSRF-TOKEN` ヘッダーを付与できずに CSRF 検証で 403 になる。
+
+`SecurityConfig` で `setCookiePath("/")` と `setCookieCustomizer(builder -> builder.secure(true).sameSite("None"))` を明示し、JWT Cookie（`JwtCookieProvider`）と同じ Cookie 属性に揃えること。

@@ -29,7 +29,17 @@ Spring Boot 4 / Java 21 マルチモジュール Gradle プロジェクト。DDD
    - `/v1/fx/master-list/**` — `permitAll`（認証不要）
    - `/**` — `hasRole("MEMBER")`（`approved=true` のユーザーのみ通過）
    - 管理者専用エンドポイント — `@PreAuthorize("hasRole('ADMIN')")`（`admin=true` のユーザーのみ通過）
-3. `POST /api/v1/auth/login` — JWT のメール情報と BASE64 デコードしたリクエストボディのメールを照合 → DB から `User`（admin・approved フラグ含む）を取得 → `AuthUser` を Redis に保存
+3. ログイン（`POST /v1/auth/login/web` または `POST /v1/auth/login/app`）— JWT のメール情報と BASE64 デコードしたリクエストボディのメールを照合 → DB から `User`（admin・approved フラグ含む）を取得 → `AuthUser` を Redis に保存
+   - `/login/web`（sandbox-spa-react向け）: 成功時 `Set-Cookie` でJWTを返す（レスポンスボディにトークンを含めない）
+   - `/login/app`（sandbox-app-flutter向け）: 従来どおりレスポンスボディにトークンを含める
+
+### トークン受け渡し（クライアント種別）と CORS/CSRF
+
+横断仕様は [documents/architecture/auth.md](../../documents/architecture/auth.md) 参照。ここでは実装上のポイントのみ記す。
+
+- `JwtAuthFilter.resolveToken()` は `Authorization` ヘッダーを優先し、無ければ Cookie（`sandbox_jwt`）を見る
+- CORS: `JwtConfig.allowedOriginList`（`CORS_ORIGIN1/2`）を使う `CorsConfigurationSource` を `SecurityConfig` に配線し `.cors(...)` で有効化。**以前はこの設定がどこにも配線されておらずデッドコードだった**（開発時は vite のプロキシで同一オリジンに見えていたため気づかれていなかった）
+- CSRF: `CookieCsrfTokenRepository` で再有効化（以前は `.csrf(AbstractHttpConfigurer::disable)` で全面無効化されていた）。Bearer 方式（Flutter）は `ignoringRequestMatchers(jwtAuthFilter::isBearerRequest)` で検証をスキップ
 
 ---
 
