@@ -2,6 +2,7 @@ package jp.co.next_evolution.sandbox.security.filter;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -9,6 +10,8 @@ import java.util.Optional;
 import jp.co.next_evolution.sandbox.domain.model.auth.AuthUser;
 import jp.co.next_evolution.sandbox.domain.repository.auth.SessionRepository;
 import jp.co.next_evolution.sandbox.domain.repository.user.UserRepository;
+import jp.co.next_evolution.sandbox.security.BearerTokenResolver;
+import jp.co.next_evolution.sandbox.security.JwtCookieProvider;
 import jp.co.next_evolution.sandbox.security.JwtProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -82,14 +85,34 @@ public class JwtAuthFilter extends OncePerRequestFilter {
   }
 
   /**
-   * Authorization: Bearer token からトークン文字列を取り出す. ヘッダーなし / Bearer でない場合は null を返す.
+   * トークン文字列を取り出す. Flutter（Bearer）を優先し、無ければReact向けCookieを見る.
    */
   private String resolveToken(HttpServletRequest request) {
-    String header = request.getHeader("Authorization");
-    if (header != null && header.startsWith("Bearer ")) {
-      return header.substring(7);
+    String bearerToken = BearerTokenResolver.resolve(request);
+    if (bearerToken != null) {
+      return bearerToken;
+    }
+    return resolveCookieToken(request);
+  }
+
+  private String resolveCookieToken(HttpServletRequest request) {
+    Cookie[] cookies = request.getCookies();
+    if (cookies == null) {
+      return null;
+    }
+    for (Cookie cookie : cookies) {
+      if (JwtCookieProvider.COOKIE_NAME.equals(cookie.getName())) {
+        return cookie.getValue();
+      }
     }
     return null;
+  }
+
+  /**
+   * Bearerトークンによるリクエストか判定する. CSRF対象外判定（Flutter向け）にも使用する.
+   */
+  public boolean isBearerRequest(HttpServletRequest request) {
+    return BearerTokenResolver.resolve(request) != null;
   }
 
 }

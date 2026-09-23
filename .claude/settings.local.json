@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(gh api *)",
+      "WebSearch",
+      "Bash(./gradlew *build*)",
+      "Bash(./gradlew *compileJava)",
+      "Bash(./gradlew *checkstyleMain)",
+      "Bash(git fetch *)",
+      "Bash(git checkout *)",
+      "Bash(git pull *)"
+    ]
+  }
+}
